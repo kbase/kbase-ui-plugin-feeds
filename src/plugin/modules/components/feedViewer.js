@@ -257,7 +257,7 @@ define([
                 startRandomInserter();
             }, interval);
         }
-        startRandomInserter();
+        // startRandomInserter();
 
         function dispose() {
             if (timer) {
@@ -300,13 +300,14 @@ define([
                 style: {
                     width: '15%'
                 }
-            }, 'Source'),
+            }, 'Date'),
             div({
                 class: '-col',
                 style: {
                     width: '15%'
                 }
-            }, 'Date'),
+            }, 'Source'),
+
             div({
                 class: '-col',
                 style: {
@@ -388,16 +389,6 @@ define([
                     ifnot: 'read'
                 }
             }, '*'),
-
-            div({
-                class: '-col',
-                style: {
-                    width: '15%'
-                },
-                dataBind: {
-                    text: 'source'
-                }
-            }),
             div({
                 class: '-col',
                 style: {
@@ -414,7 +405,17 @@ define([
             div({
                 class: '-col',
                 style: {
-                    width: '60%'
+                    width: '5%'
+                },
+                dataBind: {
+                    text: 'source'
+                }
+            }),
+
+            div({
+                class: '-col',
+                style: {
+                    width: '70%'
                 },
                 dataBind: {
                     text: 'message'
@@ -448,118 +449,8 @@ define([
         ]);
     }
 
-    function buildFeedTablex() {
-        return table({
-            class: 'table table-hover -feed'
-        }, [
-            thead(
-                tr([
-                    th('New'),
-                    th('Type'),
-                    th('Source'),
-                    th('Message')
-                ])
-            ),
-            tbody({
-                dataBind: {
-                    foreach: 'feed'
-                }
-            }, tr({
-                dataBind: {
-                    // style: {
-                    //     fontWeight: 'read() ? "normal" : "bold"'
-                    // },
-                    css: 'messageType.rowClass',
-                    click: '$component.doSelectMessage'
-                },
-                class: '-item'
-            }, [
-                td({
-                    dataBind: {
-                        ifnot: 'read'
-                    },
-                    style: {
-                        textAlign: 'center'
-                    }
-                }, '*'),
-                td({
-                    dataBind: {
-                        css: 'messageType.colorClass',
-                        style: {
-                            fontWeight: 'read() ? "bold" : "normal"'
-                        }
-                    },
-                    style: {
-                        textAlign: 'center'
-                    }
-                }, span({
-                    dataBind: {
-                        css: '"fa-" + messageType.iconClass',
-                    },
-                    class: 'fa',
 
-                })),
-                td({
-                    dataBind: {
-                        text: 'source'
-                    }
-                }),
-                td({
-                    dataBind: {
-                        text: 'message'
-                    }
-                })
-            ]))
-        ]);
-    }
 
-    function buildFeedViewerx() {
-        return [
-            '<!-- ko if: selectedMessage -->',
-            table({
-                dataBind: {
-                    with: 'selectedMessage'
-                },
-                style: {
-                    border: '1px silver solid',
-                    margin: '4px',
-                    padding: '4px'
-                }
-            }, [
-                div({
-                    dataBind: {
-                        text: 'source'
-                    }
-                }),
-                div({
-                    dataBind: {
-                        text: 'message'
-                    }
-                }),
-                div({}, [
-                    div({
-                        style: {
-                            fontWeight: 'bold'
-                        }
-                    }, 'Links'),
-                    ul({
-                        dataBind: {
-                            foreach: 'links'
-                        }
-                    }, li(a({
-                        dataBind: {
-                            text: 'title',
-                            click: '$component.doMessageAction'
-                        }
-                    })))
-                ])
-            ]),
-            '<!-- /ko -->',
-            '<!-- ko ifnot: selectedMessage -->',
-            'select a message on the left',
-            '<!-- /ko -->'
-        ];
-    }
 
     function buildFeedViewer() {
         return [

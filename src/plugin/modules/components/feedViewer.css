@@ -25,6 +25,7 @@
 
 .component_feeds_feed-viewer .-feed .-row.-header {
     font-weight: bold;
+    border-bottom: 1px silver solid;
 }
 
 .component_feeds_feed-viewer .-feed .-row {
