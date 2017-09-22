@@ -1,0 +1,32 @@
+## Config for kbase-ui-plugin-feeds
+---
+package:
+  author: Erik Pearson
+  name: feeds
+  description: Notifications and other data emitted by kbase services into a feed system which is accessed by users through this plugin
+source:
+  modules:
+  styles:
+install:
+  ko-components:
+    -
+      name: feeds/basic-viewer
+      module: components/feedViewer
+      css: true
+  widgets:
+    -
+      module: panel
+      id: kb_feeds_panel
+      type: factory
+  routes:
+    -
+      path: [feeds]
+      widget: kb_feeds_panel
+      authorization: true
+  menu:
+    -
+      name: feeds
+      definition:
+        path: feeds
+        label: Feeds
+        icon: bullhorn

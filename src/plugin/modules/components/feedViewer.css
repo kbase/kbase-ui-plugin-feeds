@@ -1,0 +1,57 @@
+.component_feeds_feed-viewer .-feed .-item {
+    cursor: pointer;
+}
+
+.component_feeds_feed-viewer .-feed .-item:hover {
+    /* background-color: silver; */
+    background-color: rgba(226, 226, 226, 0.5);
+}
+
+.component_feeds_feed-viewer table.-feed td:nth-child(1) {
+    width: 5%;
+}
+
+.component_feeds_feed-viewer table.-feed td:nth-child(2) {
+    width: 5%;
+}
+
+.component_feeds_feed-viewer table.-feed td:nth-child(3) {
+    width: 15%;
+}
+
+.component_feeds_feed-viewer table.-feed td:nth-child(4) {
+    width: 75%;
+}
+
+.component_feeds_feed-viewer .-feed .-row.-header {
+    font-weight: bold;
+}
+
+.component_feeds_feed-viewer .-feed .-row {
+    width: 100%;
+    /* border: 1px silver solid; */
+    padding: 4px;
+}
+
+.component_feeds_feed-viewer .-feed .-row.-selected .-item {
+    background-color: rgba(226, 226, 226, 1);
+}
+
+.component_feeds_feed-viewer .-feed .-row.-selected .-item:hover {
+    background-color: rgba(226, 226, 226, 0.5);
+}
+
+.component_feeds_feed-viewer .-feed .-row .-col {
+    vertical-align: top;
+    display: inline-block;
+    /* margin: 4px; */
+    padding: 4px;
+    box-sizing: border-box;
+}
+
+.component_feeds_feed-viewer .-feed .-detail {
+    border: 1px silver solid;
+    box-shadow: 4px 4px 4px gray;
+    padding: 4px;
+    margin: 4px;
+}
