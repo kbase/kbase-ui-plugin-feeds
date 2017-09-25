@@ -12,14 +12,11 @@ define([
 
     var t = html.tag,
         div = t('div'),
+        p = t('p'),
         span = t('span'),
         h3 = t('h3'),
-        table = t('table'),
-        thead = t('thead'),
-        tr = t('tr'),
-        th = t('th'),
-        tbody = t('tbody'),
-        td = t('td'),
+        label = t('label'),
+        input = t('input'),
         ul = t('ul'),
         li = t('li'),
         a = t('a');
@@ -55,27 +52,30 @@ define([
     var sampleFeed = [{
         id: '1',
         source: 'ke',
-        message: 'A user has published an updated Genome that was used in the Narrative "Expression Analysis of three strains of XXX"',
+        message: 'A user has published an updated Genome that was used in the Narrative "Expression Analysis of three strains of Rhodobacter"',
         type: 'info',
         date: '2017-09-22T13:08:14.728Z',
         read: false,
         links: [{
-            path: '/narrative/ws.1.obj.1',
-            title: 'Expression Analysis of three straings of XXX'
+            path: '/narrative/ws.26258.obj.1',
+            title: 'Expression Analysis of three strains of Rhodobacter'
         }, {
-            path: '#dataview/26183/3/1',
-            title: 'Some Genome'
+            path: '#dataview/26258/5/1',
+            title: 'Rhodobacter sphaeroides 2.4.1'
         }]
     }, {
         id: '2',
         source: 'ke',
-        message: 'The consensus functional role of a gene of interest in Narrative "XXX" may be of interest.',
+        message: 'The consensus functional role of a gene of interest in Narrative "Expression Analysis of three strains of Rhodobacter" may be of interest.',
         type: 'info',
         date: '2017-09-22T13:11:36.221Z',
         read: false,
         links: [{
-            path: '/narrative/ws.811.obj.1',
-            title: 'XXX'
+            path: '/narrative/ws.26258.obj.1',
+            title: 'Expression Analysis of three strains of Rhodobacter'
+        }, {
+            path: '#dataview/26258/3/1',
+            title: 'Rhodobacter aestuarii JA296'
         }]
     }, {
         id: '3',
@@ -85,8 +85,11 @@ define([
         date: '2017-09-22T13:13:29.842Z',
         read: false,
         links: [{
-            path: '/narrative/ws.811.obj.1',
+            path: '/narrative/ws.26258.obj.1',
             title: 'Assembly and Annotation'
+        }, {
+            path: '#dataview/26258/7/1',
+            title: 'Rhodobacter megalophilus DSM 18937'
         }]
     }, {
         id: '4',
@@ -96,22 +99,33 @@ define([
         date: '2017-09-22T13:14:31.688Z',
         read: false,
         links: [{
-            path: '/narrative/ws.811.obj.1',
+            path: '/narrative/ws.26258.obj.1',
             title: 'Assembly and Annotation'
         }]
     }, {
         id: '5',
         source: 'share',
-        message: 'User "aparkin" has shared Narrative: "XXX" with you',
+        message: 'User "aparkin" has shared Narrative: "Demo Narrative for Feeds Prototype Feature" with you',
         type: 'info',
         date: '2017-09-22T13:15:42.860Z',
         read: false,
         links: [{
-            path: '/narrative/ws.811.obj.1',
-            title: 'XXX'
+            path: '/narrative/ws.26258.obj.1',
+            title: 'Demo Narrative for Feeds Prototype Feature'
         }, {
             path: '#people/aparkin',
             title: 'Adam Arkin'
+        }]
+    }, {
+        id: '6',
+        source: 'narr',
+        message: 'A Narrative you created 3 days ago has not yet been saved.',
+        type: 'warning',
+        date: '2017-09-22T13:15:42.860Z',
+        read: false,
+        links: [{
+            path: '/narrative/ws.26258.obj.1',
+            title: 'Demo Narrative for Feeds Prototype Feature'
         }]
     }];
 
@@ -164,6 +178,17 @@ define([
         var isLoading = ko.observable(false);
         var error = ko.observable();
 
+        var viewTypes = {
+            info: ko.observable(true),
+            success: ko.observable(true),
+            warning: ko.observable(true),
+            error: ko.observable(true)
+        };
+
+        var filterText = ko.observable().extend({
+            throttle: 100
+        });
+
         // function getRowClass(item) {
         //     switch (item.type) {
         //     case 'info':
@@ -192,6 +217,59 @@ define([
             newItem.messageType = messageTypesMap[newItem.type];
             return newItem;
         }
+
+        function updateFeed() {
+            fetchFeed()
+                .then(function (newFeed) {
+                    var ofeed = newFeed.map(function (item) {
+                        return createFeedItem(item);
+                    }).filter(function (item) {
+                        if (!viewTypes.info()) {
+                            if (item.type === 'info') {
+                                return false;
+                            }
+                        }
+                        if (!viewTypes.success()) {
+                            if (item.type === 'success') {
+                                return false;
+                            }
+                        }
+                        if (!viewTypes.error()) {
+                            if (item.type === 'error') {
+                                return false;
+                            }
+                        }
+                        if (!viewTypes.warning()) {
+                            if (item.type === 'warning') {
+                                return false;
+                            }
+                        }
+                        if (filterText() && filterText().length > 0) {
+                            var re = new RegExp(filterText(), 'i');
+                            if (!re.test(item.message)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+                    feed(ofeed);
+                });
+        }
+        viewTypes.info.subscribe(function () {
+            updateFeed();
+        });
+        viewTypes.success.subscribe(function () {
+            updateFeed();
+        });
+        viewTypes.warning.subscribe(function () {
+            updateFeed();
+        });
+        viewTypes.error.subscribe(function () {
+            updateFeed();
+        });
+        filterText.subscribe(function () {
+            updateFeed();
+        });
 
         function start() {
             isLoading(true);
@@ -265,6 +343,12 @@ define([
             }
         }
 
+        function doRead(data) {
+            if (!data.read()) {
+                data.read(true);
+            }
+        }
+
         return {
             feed: feed,
             isLoading: isLoading,
@@ -272,7 +356,10 @@ define([
             doSelectMessage: doSelectMessage,
             selectedMessage: selectedMessage,
             doMessageAction: doMessageAction,
-            dispose: dispose
+            doRead: doRead,
+            dispose: dispose,
+            viewTypes: viewTypes,
+            filterText: filterText
         };
     }
 
@@ -323,12 +410,12 @@ define([
             div({
                 class: '-detail'
             }, [
-                div({
-                    dataBind: {
-                        text: 'source'
-                    }
-                }),
-                div({
+                // div({
+                //     dataBind: {
+                //         text: 'source'
+                //     }
+                // }),
+                p({
                     dataBind: {
                         text: 'message'
                     }
@@ -357,8 +444,12 @@ define([
 
     function buildFeedTableRow() {
         return div({
-            class: '-row -item'
-
+            class: '-row -item',
+            dataBind: {
+                css: {
+                    '-selected': 'selected'
+                }
+            }
         }, [
             div({
                 class: '-col',
@@ -380,17 +471,24 @@ define([
 
             })),
             div({
-                class: '-col',
+                class: '-col -read',
                 style: {
                     width: '5%',
                     textAlign: 'center'
                 },
                 dataBind: {
-                    ifnot: 'read'
+                    ifnot: 'read',
+                    style: {
+                        cursor: 'read() ? "normal" : "pointer"',
+                    },
+                    css: {
+                        '-is-read': 'read()'
+                    },
+                    click: '$component.doRead'
                 }
             }, '*'),
             div({
-                class: '-col',
+                class: '-col -date',
                 style: {
                     width: '15%'
                 },
@@ -403,7 +501,7 @@ define([
                 }
             }),
             div({
-                class: '-col',
+                class: '-col -source',
                 style: {
                     width: '5%'
                 },
@@ -413,12 +511,13 @@ define([
             }),
 
             div({
-                class: '-col',
+                class: '-col -message',
                 style: {
                     width: '70%'
                 },
                 dataBind: {
-                    text: 'message'
+                    text: 'message',
+                    click: '$component.doSelectMessage'
                 }
             })
         ]);
@@ -432,25 +531,28 @@ define([
             class: '-feed'
         }, [
             buildFeedTableHeader(),
+            '<!-- ko if: feed().length > 0 -->',
             '<!-- ko foreach: feed -->',
             div({
                 class: '-row',
-                dataBind: {
-                    click: '$component.doSelectMessage',
-                    css: {
-                        '-selected': 'selected'
-                    }
-                }
+
             }, [
                 buildFeedTableRow(),
                 buildFeedDetail()
             ]),
-            '<!-- /ko -->'
+            '<!-- /ko -->',
+            '<!-- /ko -->',
+            '<!-- ko if: feed().length === 0 -->',
+            p({
+                style: {
+                    textAlign: 'center',
+                    margin: '10px',
+                    color: 'red'
+                }
+            }, 'Sorry, No Feed messages found'),
+            '<!-- /ko -->',
         ]);
     }
-
-
-
 
     function buildFeedViewer() {
         return [
@@ -471,6 +573,7 @@ define([
                     }
                 }),
                 div({
+                    class: '-message',
                     dataBind: {
                         text: 'message'
                     }
@@ -504,13 +607,13 @@ define([
         return div({
             class: 'container-fluid component_feeds_feed-viewer'
         }, [
-            div({
-                class: 'row'
-            }, div({
-                class: 'col-sm-12'
-            }, [
-                h3('Your Feed from KBase Services')
-            ])),
+            // div({
+            //     class: 'row'
+            // }, div({
+            //     class: 'col-sm-12'
+            // }, [
+            //     h3('Your Feed from KBase Services')
+            // ])),
             div({
                 class: 'row'
             }, [
@@ -525,8 +628,71 @@ define([
         ]);
     }
 
+    function buildFeedControls() {
+        return div({
+            class: 'form-inline',
+            style: {
+                height: '50px',
+                textAlign: 'center'
+            }
+        }, [
+            'Filter messages: ',
+            div({
+                class: 'checkbox'
+            }, label([
+                input({
+                    type: 'checkbox',
+                    dataBind: {
+                        checked: 'viewTypes.info'
+                    }
+                }), 'Info'
+            ])),
+            div({
+                class: 'checkbox'
+            }, label([
+                input({
+                    type: 'checkbox',
+                    dataBind: {
+                        checked: 'viewTypes.success'
+                    }
+                }), 'Success'
+            ])),
+            div({
+                class: 'checkbox'
+            }, label([
+                input({
+                    type: 'checkbox',
+                    dataBind: {
+                        checked: 'viewTypes.warning'
+                    }
+                }), 'Warning'
+            ])),
+            div({
+                class: 'checkbox'
+            }, label([
+                input({
+                    type: 'checkbox',
+                    dataBind: {
+                        checked: 'viewTypes.error'
+                    }
+                }), 'Error'
+            ])),
+            div({
+                class: 'form-group',
+            }, input({
+                class: 'form-control',
+                placeholder: 'filter messages',
+                dataBind: {
+                    textInput: 'filterText'
+                }
+            }))
+        ]);
+    }
+
     function template() {
-        return div([
+        return div({
+            class: 'component_feeds_feed-viewer'
+        }, [
             '<!-- ko if: error -->',
             div({
                 dataBind: {
@@ -535,6 +701,7 @@ define([
             }),
             '<!-- /ko -->',
             '<!-- ko ifnot: error -->',
+            buildFeedControls(),
             buildFeedView(),
             '<!-- /ko -->'
         ]);

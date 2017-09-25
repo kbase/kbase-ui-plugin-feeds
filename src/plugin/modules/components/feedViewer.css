@@ -1,10 +1,24 @@
 .component_feeds_feed-viewer .-feed .-item {
+    /* cursor: pointer; */
+}
+
+.component_feeds_feed-viewer .-feed .-item .-message {
     cursor: pointer;
 }
 
-.component_feeds_feed-viewer .-feed .-item:hover {
+.component_feeds_feed-viewer .-feed .-item .-message:hover {
     /* background-color: silver; */
     background-color: rgba(226, 226, 226, 0.5);
+}
+
+.component_feeds_feed-viewer .-feed .-item .-read:hover {
+    /* background-color: silver; */
+    background-color: rgba(226, 226, 226, 0.5);
+}
+
+.component_feeds_feed-viewer .-feed .-item .-read.-is-read:hover {
+    /* background-color: silver; */
+    background-color: transparent;
 }
 
 .component_feeds_feed-viewer table.-feed td:nth-child(1) {
@@ -34,11 +48,20 @@
     padding: 4px;
 }
 
-.component_feeds_feed-viewer .-feed .-row.-selected .-item {
+.component_feeds_feed-viewer .-feed .-row.-selected.-item {
     background-color: rgba(226, 226, 226, 1);
 }
 
-.component_feeds_feed-viewer .-feed .-row.-selected .-item:hover {
+
+/* .component_feeds_feed-viewer .-feed .-row.-selected .-item:hover {
+    background-color: rgba(226, 226, 226, 0.5);
+} */
+
+.component_feeds_feed-viewer .-feed .-row.-selected.-item .-message:hover {
+    background-color: rgba(226, 226, 226, 0.5);
+}
+
+.component_feeds_feed-viewer .-feed .-row.-selected.-item .-read:hover {
     background-color: rgba(226, 226, 226, 0.5);
 }
 
@@ -55,4 +78,9 @@
     box-shadow: 4px 4px 4px gray;
     padding: 4px;
     margin: 4px;
+}
+
+.component_feeds_feed-viewer .form-inline .checkbox {
+    padding-left: 5px;
+    padding-right: 5px;
 }
