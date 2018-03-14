@@ -1,9 +1,11 @@
 define([
-    'knockout-plus',
-    'kb_common/html'
+    'kb_ko/lib/knockout-base',
+    'kb_common/html',
+    './components/feedViewer'
 ], function (
-    ko,
-    html
+    KO,
+    html,
+    FeedViewerComponent
 ) {
     'use strict';
 
@@ -19,17 +21,17 @@ define([
             container = hostNode.appendChild(document.createElement('div'));
         }
 
-        function start(params) {
+        function start() {
             runtime.send('ui', 'setTitle', 'Feeds');
             container.innerHTML = div({
                 dataBind: {
                     component: {
-                        name: '"feeds/basic-viewer"',
+                        name: FeedViewerComponent.quotedName(),
                         params: {}
                     }
                 }
             });
-            ko.applyBindings({}, container);
+            KO.ko.applyBindings({}, container);
         }
 
         function stop() {

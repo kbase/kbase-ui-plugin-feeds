@@ -1,12 +1,18 @@
 // A very basic starter display for feeds.
 define([
     'bluebird',
-    'knockout-plus',
-    'kb_common/html'
+    'kb_ko/lib/knockout-base',
+    'kb_ko/lib/viewModelBase',
+    'kb_common/html',
+    '../sampleData',
+
+    'css!./feedViewer.css'
 ], function (
     Promise,
-    ko,
-    html
+    KO,
+    ViewModelBase,
+    html,
+    sampleData
 ) {
     'use strict';
 
@@ -14,120 +20,19 @@ define([
         div = t('div'),
         p = t('p'),
         span = t('span'),
-        h3 = t('h3'),
         label = t('label'),
         input = t('input'),
         ul = t('ul'),
         li = t('li'),
         a = t('a');
 
-    var sampleFeedSources = [{
-        id: 'ke',
-        title: 'Knowledge Engine',
-        icon: 'connecteddevelop'
-    }, {
-        id: 'appjob',
-        title: 'App Cell Job',
-        icon: 'bolt'
-    }, {
-        id: 'importjob',
-        title: 'Import Job',
-        icon: 'upload'
-    }, {
-        id: 'share',
-        title: 'Share',
-        icon: 'share-alt'
-    }];
+    var sampleFeed = sampleData.feed;
 
-    var sampleTargetTypes = [{
-        id: 'narrative',
-        label: 'Narratve',
-        icon: 'file-o'
-    }, {
-        id: 'data',
-        label: 'Data',
-        icon: 'database'
-    }];
+    var sampleFeedSources = sampleData.sources;
 
-    var sampleFeed = [{
-        id: '1',
-        source: 'ke',
-        message: 'A user has published an updated Genome that was used in the Narrative "Expression Analysis of three strains of Rhodobacter"',
-        type: 'info',
-        date: '2017-09-22T13:08:14.728Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Expression Analysis of three strains of Rhodobacter'
-        }, {
-            path: '#dataview/26258/5/1',
-            title: 'Rhodobacter sphaeroides 2.4.1'
-        }]
-    }, {
-        id: '2',
-        source: 'ke',
-        message: 'The consensus functional role of a gene of interest in Narrative "Expression Analysis of three strains of Rhodobacter" may be of interest.',
-        type: 'info',
-        date: '2017-09-22T13:11:36.221Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Expression Analysis of three strains of Rhodobacter'
-        }, {
-            path: '#dataview/26258/3/1',
-            title: 'Rhodobacter aestuarii JA296'
-        }]
-    }, {
-        id: '3',
-        source: 'appjob',
-        message: 'Job Completed: Spades Assembly Finished in Narrative "Assembly and Annotation"',
-        type: 'success',
-        date: '2017-09-22T13:13:29.842Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Assembly and Annotation'
-        }, {
-            path: '#dataview/26258/7/1',
-            title: 'Rhodobacter megalophilus DSM 18937'
-        }]
-    }, {
-        id: '4',
-        source: 'appjob',
-        message: 'Job Failed: Prokka Annotation failed in Narrative: "Assembly and Annotation"',
-        type: 'error',
-        date: '2017-09-22T13:14:31.688Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Assembly and Annotation'
-        }]
-    }, {
-        id: '5',
-        source: 'share',
-        message: 'User "aparkin" has shared Narrative: "Demo Narrative for Feeds Prototype Feature" with you',
-        type: 'info',
-        date: '2017-09-22T13:15:42.860Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Demo Narrative for Feeds Prototype Feature'
-        }, {
-            path: '#people/aparkin',
-            title: 'Adam Arkin'
-        }]
-    }, {
-        id: '6',
-        source: 'narr',
-        message: 'A Narrative you created 3 days ago has not yet been saved.',
-        type: 'warning',
-        date: '2017-09-22T13:15:42.860Z',
-        read: false,
-        links: [{
-            path: '/narrative/ws.26258.obj.1',
-            title: 'Demo Narrative for Feeds Prototype Feature'
-        }]
-    }];
+    var sampleTargetTypes = sampleData.targetTypes;
+
+    // var messageTypes = sampleData.messageTypes
 
     var messageTypes = [{
         name: 'info',
@@ -147,221 +52,7 @@ define([
         iconClass: 'exclamation-triangle'
     }];
 
-    function viewModel(params) {
-        function fetchTargetTypes() {
-            return Promise.try(function () {
-                return sampleTargetTypes;
-            });
-        }
-
-        function fetchSources() {
-            return Promise.try(function () {
-                return sampleFeedSources;
-            });
-        }
-
-        function fetchFeed() {
-            return Promise.try(function () {
-                return sampleFeed;
-            });
-        }
-
-        var messageTypesMap = messageTypes.reduce(function (map, item) {
-            map[item.name] = item;
-            return map;
-        }, {});
-
-        var targetTypes;
-        var feedSources;
-        var feed = ko.observableArray();
-
-        var isLoading = ko.observable(false);
-        var error = ko.observable();
-
-        var viewTypes = {
-            info: ko.observable(true),
-            success: ko.observable(true),
-            warning: ko.observable(true),
-            error: ko.observable(true)
-        };
-
-        var filterText = ko.observable().extend({
-            throttle: 100
-        });
-
-        // function getRowClass(item) {
-        //     switch (item.type) {
-        //     case 'info':
-        //         return 'info';
-        //     case 'success':
-        //         return 'success';
-        //     case 'warning':
-        //         return 'warning';
-        //     case 'error':
-        //         return 'danger';
-        //     default:
-        //         return '';
-        //     }
-        // }
-
-        // function getRowClasses(item) {
-        //     var classes = {};
-        //     classes[getRowClass(item)] = true;
-        //     return classes;
-        // }
-
-        function createFeedItem(item) {
-            var newItem = JSON.parse(JSON.stringify(item));
-            newItem.read = ko.observable(newItem.read);
-            newItem.selected = ko.observable(false);
-            newItem.messageType = messageTypesMap[newItem.type];
-            return newItem;
-        }
-
-        function updateFeed() {
-            fetchFeed()
-                .then(function (newFeed) {
-                    var ofeed = newFeed.map(function (item) {
-                        return createFeedItem(item);
-                    }).filter(function (item) {
-                        if (!viewTypes.info()) {
-                            if (item.type === 'info') {
-                                return false;
-                            }
-                        }
-                        if (!viewTypes.success()) {
-                            if (item.type === 'success') {
-                                return false;
-                            }
-                        }
-                        if (!viewTypes.error()) {
-                            if (item.type === 'error') {
-                                return false;
-                            }
-                        }
-                        if (!viewTypes.warning()) {
-                            if (item.type === 'warning') {
-                                return false;
-                            }
-                        }
-                        if (filterText() && filterText().length > 0) {
-                            var re = new RegExp(filterText(), 'i');
-                            if (!re.test(item.message)) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    });
-                    feed(ofeed);
-                });
-        }
-        viewTypes.info.subscribe(function () {
-            updateFeed();
-        });
-        viewTypes.success.subscribe(function () {
-            updateFeed();
-        });
-        viewTypes.warning.subscribe(function () {
-            updateFeed();
-        });
-        viewTypes.error.subscribe(function () {
-            updateFeed();
-        });
-        filterText.subscribe(function () {
-            updateFeed();
-        });
-
-        function start() {
-            isLoading(true);
-            return Promise.all([
-                    fetchTargetTypes(),
-                    fetchSources(),
-                    fetchFeed()
-                ])
-                .spread(function (newTypes, newSources, newFeed) {
-                    targetTypes = newTypes;
-                    feedSources = newSources;
-
-                    var ofeed = newFeed.map(function (item) {
-                        return createFeedItem(item);
-                    });
-                    feed(ofeed);
-                })
-                .catch(function (err) {
-                    console.error('error', err);
-                    error(err.message);
-                })
-                .finally(function () {
-                    isLoading(false);
-                });
-        }
-
-        var selectedMessage = ko.observable();
-
-        function doSelectMessage(data) {
-            data.read(true);
-            if (selectedMessage()) {
-                // otherwise unselect the existing message
-                selectedMessage().selected(false);
-                // unselect if already selected
-                if (selectedMessage() === data) {
-                    selectedMessage(null);
-                    return;
-                }
-            }
-            data.selected(true);
-            selectedMessage(data);
-        }
-
-        function doMessageAction(data) {
-            window.open(data.path);
-            // window.location.href = data.path;
-        }
-
-        start();
-
-        var timer;
-
-        function startRandomInserter() {
-            function insertOne() {
-                var index = Math.floor(Math.random() * sampleFeed.length);
-                var item = JSON.parse(JSON.stringify(sampleFeed[index]));
-                item.date = new Date();
-                feed.unshift(createFeedItem(item));
-            }
-            var interval = Math.ceil(Math.random() * 15000);
-            timer = window.setTimeout(function () {
-                insertOne();
-                startRandomInserter();
-            }, interval);
-        }
-        // startRandomInserter();
-
-        function dispose() {
-            if (timer) {
-                window.clearTimeout(timer);
-            }
-        }
-
-        function doRead(data) {
-            if (!data.read()) {
-                data.read(true);
-            }
-        }
-
-        return {
-            feed: feed,
-            isLoading: isLoading,
-            error: error,
-            doSelectMessage: doSelectMessage,
-            selectedMessage: selectedMessage,
-            doMessageAction: doMessageAction,
-            doRead: doRead,
-            dispose: dispose,
-            viewTypes: viewTypes,
-            filterText: filterText
-        };
-    }
+   
 
     function buildFeedTableHeader() {
         return div({
@@ -554,54 +245,54 @@ define([
         ]);
     }
 
-    function buildFeedViewer() {
-        return [
-            '<!-- ko if: selectedMessage -->',
-            div({
-                dataBind: {
-                    with: 'selectedMessage'
-                },
-                style: {
-                    border: '1px silver solid',
-                    margin: '4px',
-                    padding: '4px'
-                }
-            }, [
-                div({
-                    dataBind: {
-                        text: 'source'
-                    }
-                }),
-                div({
-                    class: '-message',
-                    dataBind: {
-                        text: 'message'
-                    }
-                }),
-                div({}, [
-                    div({
-                        style: {
-                            fontWeight: 'bold'
-                        }
-                    }, 'Links'),
-                    ul({
-                        dataBind: {
-                            foreach: 'links'
-                        }
-                    }, li(a({
-                        dataBind: {
-                            text: 'title',
-                            click: '$component.doMessageAction'
-                        }
-                    })))
-                ])
-            ]),
-            '<!-- /ko -->',
-            '<!-- ko ifnot: selectedMessage -->',
-            'select a message on the left',
-            '<!-- /ko -->'
-        ];
-    }
+    // function buildFeedViewer() {
+    //     return [
+    //         '<!-- ko if: selectedMessage -->',
+    //         div({
+    //             dataBind: {
+    //                 with: 'selectedMessage'
+    //             },
+    //             style: {
+    //                 border: '1px silver solid',
+    //                 margin: '4px',
+    //                 padding: '4px'
+    //             }
+    //         }, [
+    //             div({
+    //                 dataBind: {
+    //                     text: 'source'
+    //                 }
+    //             }),
+    //             div({
+    //                 class: '-message',
+    //                 dataBind: {
+    //                     text: 'message'
+    //                 }
+    //             }),
+    //             div({}, [
+    //                 div({
+    //                     style: {
+    //                         fontWeight: 'bold'
+    //                     }
+    //                 }, 'Links'),
+    //                 ul({
+    //                     dataBind: {
+    //                         foreach: 'links'
+    //                     }
+    //                 }, li(a({
+    //                     dataBind: {
+    //                         text: 'title',
+    //                         click: '$component.doMessageAction'
+    //                     }
+    //                 })))
+    //             ])
+    //         ]),
+    //         '<!-- /ko -->',
+    //         '<!-- ko ifnot: selectedMessage -->',
+    //         'select a message on the left',
+    //         '<!-- /ko -->'
+    //     ];
+    // }
 
     function buildFeedView() {
         return div({
@@ -689,6 +380,184 @@ define([
         ]);
     }
 
+
+    class FeedViewerViewModel extends ViewModelBase {
+        constructor() {
+            super();
+            // TODO move to superclass??
+
+            this.feed = this.observableArray();
+            this.isLoading = this.observableArray();
+            this.error = this.observable();
+            this.viewTypes = {
+                info: this.observable(true),
+                success: this.observable(true),
+                warning: this.observable(true),
+                error: this.observable(true)
+            };
+            this.filterText = this.observable().extend({
+                throttle: 100
+            });
+            this.selectedMessage = this.observable();
+
+            this.messageTypesMap = messageTypes.reduce((map, item) => {
+                map[item.name] = item;
+                return map;
+            }, {});
+
+            // Subscriptions
+            // TODO: dispose them.
+
+            this.subscribe(this.viewTypes.info, () => {
+                this.updateFeed();
+            });
+            this.subscribe(this.viewTypes.success, () => {
+                this.updateFeed();
+            });
+            this.subscribe(this.viewTypes.warning, () => {
+                this.updateFeed();
+            });
+            this.subscribe(this.viewTypes.error, () => {
+                this.updateFeed();
+            });
+            this.subscribe(this.filterText, () => {
+                this.updateFeed();
+            });
+
+            // this.viewTypes.success.subscribe(() => {
+            //     this.updateFeed();
+            // });
+            // this.viewTypes.warning.subscribe(() => {
+            //     this.updateFeed();
+            // });
+            // this.viewTypes.error.subscribe(() => {
+            //     this.updateFeed();
+            // });
+            // this.filterText.subscribe(() => {
+            //     this.updateFeed();
+            // });
+
+            this.start();
+        }
+
+       
+
+        fetchTargetTypes() {
+            return Promise.try(function () {
+                return sampleTargetTypes;
+            });
+        }
+
+        fetchSources() {
+            return Promise.try(function () {
+                return sampleFeedSources;
+            });
+        }
+
+        fetchFeed() {
+            return Promise.try(function () {
+                return sampleFeed;
+            });
+        }
+
+        createFeedItem(item) {
+            var newItem = JSON.parse(JSON.stringify(item));
+            newItem.read = this.observable(newItem.read);
+            newItem.selected = this.observable(false);
+            newItem.messageType = this.messageTypesMap[newItem.type];
+            return newItem;
+        }
+
+        updateFeed() {
+            this.fetchFeed()
+                .then((newFeed) => {
+                    var ofeed = newFeed.map((item) => {
+                        return this.createFeedItem(item);
+                    }).filter((item) => {
+                        if (!this.viewTypes.info()) {
+                            if (item.type === 'info') {
+                                return false;
+                            }
+                        }
+                        if (!this.viewTypes.success()) {
+                            if (item.type === 'success') {
+                                return false;
+                            }
+                        }
+                        if (!this.viewTypes.error()) {
+                            if (item.type === 'error') {
+                                return false;
+                            }
+                        }
+                        if (!this.viewTypes.warning()) {
+                            if (item.type === 'warning') {
+                                return false;
+                            }
+                        }
+                        if (this.filterText() && this.filterText().length > 0) {
+                            var re = new RegExp(this.filterText(), 'i');
+                            if (!re.test(item.message)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+                    this.feed(ofeed);
+                });
+        }
+
+        start() {
+            this.isLoading(true);
+            return Promise.all([
+                this.fetchTargetTypes(),
+                this.fetchSources(),
+                this.fetchFeed()
+            ])
+                .spread((newTypes, newSources, newFeed) => {
+                    this.targetTypes = newTypes;
+                    this.feedSources = newSources;
+
+                    var ofeed = newFeed.map((item) => {
+                        return this.createFeedItem(item);
+                    });
+                    this.feed(ofeed);
+                })
+                .catch((err) => {
+                    console.error('error', err);
+                    this.error(err.message);
+                })
+                .finally(() => {
+                    this.isLoading(false);
+                });
+        }
+
+        doSelectMessage(data) {
+            data.read(true);
+            if (this.selectedMessage()) {
+                // otherwise unselect the existing message
+                this.selectedMessage().selected(false);
+                // unselect if already selected
+                if (this.selectedMessage() === data) {
+                    this.selectedMessage(null);
+                    return;
+                }
+            }
+            data.selected(true);
+            this.selectedMessage(data);
+        }
+
+        doMessageAction(data) {
+            window.open(data.path);
+            // window.location.href = data.path;
+        }
+
+        doRead(data) {
+            if (!data.read()) {
+                data.read(true);
+            }
+        }
+    }
+
     function template() {
         return div({
             class: 'component_feeds_feed-viewer'
@@ -709,10 +578,10 @@ define([
 
     function component() {
         return {
-            viewModel: viewModel,
+            viewModel: FeedViewerViewModel,
             template: template()
         };
     }
 
-    return component;
+    return KO.registerComponent(component);
 });

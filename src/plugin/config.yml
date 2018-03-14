@@ -8,11 +8,6 @@ source:
   modules:
   styles:
 install:
-  ko-components:
-    -
-      name: feeds/basic-viewer
-      module: components/feedViewer
-      css: true
   widgets:
     -
       module: panel
