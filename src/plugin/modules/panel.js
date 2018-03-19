@@ -1,5 +1,5 @@
 define([
-    'kb_ko/lib/knockout-base',
+    'kb_ko/KO',
     'kb_common/html',
     './components/feedViewer'
 ], function (

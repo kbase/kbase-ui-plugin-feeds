@@ -1,7 +1,7 @@
 // A very basic starter display for feeds.
 define([
     'bluebird',
-    'kb_ko/lib/knockout-base',
+    'kb_ko/KO',
     'kb_ko/lib/viewModelBase',
     'kb_common/html',
     '../sampleData',
