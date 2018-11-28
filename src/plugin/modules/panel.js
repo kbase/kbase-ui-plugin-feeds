@@ -1,37 +1,35 @@
 define([
-    'kb_ko/KO',
     'kb_common/html',
-    './components/feedViewer'
+    './components/controller'
 ], function (
-    KO,
     html,
-    FeedViewerComponent
+    FeedController
 ) {
     'use strict';
 
     var t = html.tag,
-        div = t('div');
+        div = t('div'),
+        myFeed;
 
     function factory(config) {
         var runtime = config.runtime,
-            hostNode, container;
+            hostNode,
+            container,
+            roles;
 
         function attach(node) {
             hostNode = node;
             container = hostNode.appendChild(document.createElement('div'));
+            container.classList.add('feeds-container');
         }
 
         function start() {
-            runtime.send('ui', 'setTitle', 'Feeds');
-            container.innerHTML = div({
-                dataBind: {
-                    component: {
-                        name: FeedViewerComponent.quotedName(),
-                        params: {}
-                    }
-                }
+            runtime.send('ui', 'setTitle', 'Notification Feeds');
+            roles = runtime.service('session').getRoles();
+            myFeed = new FeedController({
+                runtime: runtime
             });
-            KO.ko.applyBindings({}, container);
+            container.appendChild(myFeed.element);
         }
 
         function stop() {
