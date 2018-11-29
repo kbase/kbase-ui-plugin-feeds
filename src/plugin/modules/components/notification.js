@@ -7,26 +7,26 @@ define([
 
     class Notification {
         /**
-         *
          * @param {object} note
          * has keys: actor, context, created, expires, id, level, object, source, verb
+         * @param {object} config
+         * - token - the auth token
+         * - refreshFn - called when something gets marked seen/unseen
+         * - showSeen - boolean, if true, shows an icon of whether a notification has been seen
+         * - runtime - the runtime object
          */
-        constructor(note, token, refreshFn, showSeen) {
-            console.log(note);
+        constructor(note, config) {
+            this.runtime = config.runtime;
             this.note = note;
-            this.token = token;
-            this.refreshFn = refreshFn;
-            this.showSeen = showSeen;
+            this.token = config.token;
+            this.refreshFn = config.refreshFn;
+            this.showSeen = config.showSeen;
             this.element = document.createElement('div');
             this.element.classList.add('row', 'alert');
             this.render();
         }
 
         render() {
-            let text = '';
-            if (this.note.context && this.note.context.text) {
-                text = this.note.context.text;
-            }
             this.element.innerHTML = `
                 <div class="col-md-1">${this.renderLevel()}</div>
                 <div class="col-md-10">${this.renderBody()}</div>
@@ -134,14 +134,18 @@ define([
             }
             this.element.querySelector('#seen-icon').onclick = () => {
                 let action;
+                let feedsApi = FeedsAPI.make(this.runtime.getConfig('services.feeds.url'), this.token);
                 if (this.note.seen) {
-                    action = Feeds.markUnseen([this.note.id], this.token);
+                    action = feedsApi.markUnseen([this.note.id]);
                 }
                 else {
-                    action = Feeds.markSeen([this.note.id], this.token);
+                    action = feedsApi.markSeen([this.note.id]);
                 }
-                action.then(() => { this.refreshFn() } );
-            }
+                action.then((response) => {
+                    console.log(response);
+                    this.refreshFn();
+                });
+            };
         }
     }
     return Notification;

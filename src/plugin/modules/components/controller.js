@@ -16,20 +16,24 @@ define([
             this.element = document.createElement('div');
             this.element.style.display = 'none';
 
-            this.globalFeed = new Feed(this.refreshFeed.bind(this), {
-                userName: 'Global',
+            this.globalFeed = new Feed({
+                runtime: runtime,
+                refreshFn: this.refreshFeed.bind(this),
+                feedName: 'Global',
                 showControls: false,
                 showSeen: false
             });
-            this.userFeed = new Feed(this.refreshFeed.bind(this), {
-                userName: 'User',
+            this.userFeed = new Feed({
+                runtime: runtime,
+                refreshFn: this.refreshFeed.bind(this),
+                feedName: 'User',
                 showControls: true,
                 showSeen: true
             });
 
             this.element.appendChild(this.globalFeed.element);
             this.element.appendChild(this.userFeed.element);
-            this.feedsApi = FeedsAPI.make("https://ci.kbase.us/services/feeds", this.token);
+            this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
 
             this.initialize('User');
 
@@ -61,7 +65,6 @@ define([
             this.feedsApi.getNotifications(filters)
                 .then(response => {
                     return response.json();
-                    // this.renderFeed(feed.data);
                 })
                 .then(feed => {
                     console.log(feed);

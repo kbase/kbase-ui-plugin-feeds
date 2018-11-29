@@ -51,9 +51,19 @@ define([
                 maxRedirects: 5
             };
             if (data) {
-                request.data = data;
+                request.body = JSON.stringify(data);
             }
-            return fetch(url, request);
+            console.log(request);
+            return fetch(url, request)
+                .then(handleErrors);
+        }
+
+        function handleErrors (response) {
+            if (!response.ok) {
+                console.error(response);
+                throw Error(response.statusText);
+            }
+            return response;
         }
 
         /**
@@ -78,9 +88,10 @@ define([
             if (options.includeSeen) {
                 params.push('seen=1');
             }
-            let path = 'api/V1/notifications?' + params.join('&');
-            return makeApiCall('GET', path, token);
-        };
+            let path = 'api/V1/notifications/?' + params.join('&');
+            console.log(path);
+            return makeApiCall('GET', path);
+        }
 
         /**
          *
