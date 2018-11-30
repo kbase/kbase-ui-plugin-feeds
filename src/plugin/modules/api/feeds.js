@@ -5,8 +5,6 @@ define([
     /**
      * Basic feeds API.
      */
-    // import axios from 'axios';
-    // const feedsUrl = 'https://ci.kbase.us/services/feeds/';
 
     /**
      * @param {string} endpoint - the endpoint for the Feeds service

@@ -25,7 +25,6 @@ define([
 
         function start() {
             runtime.send('ui', 'setTitle', 'Notification Feeds');
-            roles = runtime.service('session').getRoles();
             myFeed = new FeedController({
                 runtime: runtime
             });

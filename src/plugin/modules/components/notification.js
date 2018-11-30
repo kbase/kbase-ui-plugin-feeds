@@ -86,7 +86,7 @@ define([
         renderSeen() {
             let icon = 'fa fa-times';
             if (this.note.seen) {
-                icon = 'far fa-eye';
+                icon = 'fa fa-eye';
             }
             return `
                 <span style="font-size: 1.5em; cursor: pointer;" id="seen-icon">
@@ -120,6 +120,9 @@ define([
                     break;
                 case 'shared':
                     msg = this.note.actor + ' ' + this.note.verb + ' with you.';
+                    break;
+                case 'requested':
+                    msg = this.note.actor + ' ' + this.note.verb + ' to join the group ' + this.note.object;
                     break;
                 default:
                     msg = this.note.actor + ' ' + this.note.verb + ' ' + this.note.object;

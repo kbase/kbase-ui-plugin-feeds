@@ -1,9 +1,11 @@
 define([
     '../api/feeds',
-    './feed'
+    './feed',
+    './globalPoster'
 ], function (
     FeedsAPI,
-    Feed
+    Feed,
+    GlobalPoster
 ) {
     'use strict';
 
@@ -30,6 +32,14 @@ define([
                 showControls: true,
                 showSeen: true
             });
+
+            if (runtime.service('session').getCustomRoles().includes('FEEDS_ADMIN')) {
+                this.globalPoster = new GlobalPoster({
+                    afterSubmitFn: this.refreshFeed.bind(this),
+                    runtime: runtime
+                });
+                this.element.appendChild(this.globalPoster.element);
+            }
 
             this.element.appendChild(this.globalFeed.element);
             this.element.appendChild(this.userFeed.element);
