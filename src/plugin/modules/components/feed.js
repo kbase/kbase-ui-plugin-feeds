@@ -138,7 +138,7 @@ define([
         updateFeed(feed, token) {
             this.remove();
             let userFeed = this.element.querySelector('.panel-body');
-            feed.forEach(note => {
+            feed.feed.forEach(note => {
                 let noteObj = new Notification(note, {
                     runtime: this.runtime,
                     token: token,
