@@ -1,3 +1,1 @@
-# KBase UI RESKE Search Interface
-
-A new search ui plugin.
+# KBase UI Feeds Plugin

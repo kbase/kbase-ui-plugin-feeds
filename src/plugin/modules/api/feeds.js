@@ -105,7 +105,7 @@ define([
         }
 
         function postGlobalNotification (data) {
-            let path = 'api/V1/notification/global';
+            let path = 'admin/api/V1/notification/global';
             return makeApiCall('POST', path, data);
         }
 

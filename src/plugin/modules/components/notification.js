@@ -1,9 +1,19 @@
 define([
-    '../api/feeds'
+    '../api/feeds',
+    'kb_common/html',
+    '../util'
 ], function(
-    FeedsAPI
+    FeedsAPI,
+    HTML,
+    Util
 ) {
     'use strict';
+    let t = HTML.tag,
+        div = t('div'),
+        span = t('span'),
+        small = t('small'),
+        i = t('i'),
+        a = t('a');
 
     class Notification {
         /**
@@ -27,21 +37,16 @@ define([
         }
 
         render() {
-            this.element.innerHTML = `
-                <div class="col-md-1">${this.renderLevel()}</div>
-                <div class="col-md-10">${this.renderBody()}</div>
-                <div class="col-md-1">${this.renderControl()}</div>
-            `;
+            let level = div({class: 'col-md-1'}, [this.renderLevel()]),
+                body = div({class: 'col-md-10'}, [this.renderBody()]),
+                control = div({class: 'col-md-1'}, [this.renderControl()]);
+            this.element.innerHTML = level + body + control;
             this.bindEvents();
         }
 
         renderBody() {
-            let text = `
-                <div>${this.renderMessage()}</div>
-            `;
-            let infoStamp = `
-                <small>${this.renderCreated()} - ${this.note.source}</small>
-            `;
+            let text = div(this.renderMessage()),
+                infoStamp = small(this.renderCreated() + ' - ' + this.note.source);
             return text + infoStamp;
         }
 
@@ -57,7 +62,11 @@ define([
         }
 
         renderLink(url) {
-            return `<span style="font-size: 1.5em;"><a href="${url}" target="_blank"><i class="fa fa-external-link-alt"></i></a></span>`;
+            return span(
+                {style: 'font-size: 1.5em'},
+                a(
+                    {href: url, target: '_blank'},
+                    i({class: 'fa fa-external-link-alt'})));
         }
 
         renderLevel() {
@@ -106,7 +115,7 @@ define([
 
         renderMessage() {
             if (this.note.context && this.note.context.text) {
-                return this.note.context.text;
+                return Util.cleanText(this.note.context.text);
             }
             else {
                 let msg;
