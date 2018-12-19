@@ -14,7 +14,6 @@ define([
         constructor(config) {
             this.runtime = config.runtime;
             this.element = document.createElement('div');
-            // this.element.style.display = 'none';
             this.element.classList.add('panel', 'panel-primary');
             const verbs = ['invite', 'accept', 'reject', 'share', 'unshare', 'join', 'leave', 'request', 'update'];
             const levels = ['alert', 'warning', 'error', 'request'];
