@@ -1,65 +1,92 @@
 define([
+    'bluebird',
     '../api/feeds',
     './feed',
-    './globalPoster'
+    './globalPoster',
+    './feedTabs',
+    '../util'
 ], function (
+    Promise,
     FeedsAPI,
     Feed,
-    GlobalPoster
+    GlobalPoster,
+    FeedTabs,
+    Util
 ) {
     'use strict';
 
     class FeedController {
         constructor(config) {
-            // this.token = null;
             let runtime = config.runtime;
             this.token = runtime.service('session').getAuthToken();
             this.notes = [];
             this.element = document.createElement('div');
-            this.element.style.display = 'none';
-
-            this.globalFeed = new Feed({
-                runtime: runtime,
-                refreshFn: this.refreshFeed.bind(this),
-                feedName: 'Global',
-                showControls: false,
-                showSeen: false
-            });
-            this.userFeed = new Feed({
-                runtime: runtime,
-                refreshFn: this.refreshFeed.bind(this),
-                feedName: 'User',
-                showControls: true,
-                showSeen: true
-            });
-
-            if (runtime.service('session').getCustomRoles().includes('FEEDS_ADMIN')) {
-                this.globalPoster = new GlobalPoster({
-                    afterSubmitFn: this.refreshFeed.bind(this),
-                    runtime: runtime
-                });
-                this.element.appendChild(this.globalPoster.element);
-            }
-
-            this.element.appendChild(this.globalFeed.element);
-            this.element.appendChild(this.userFeed.element);
             this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
+            let loader = Util.loadingElement('3x');
+            this.feedData = {};
 
-            this.initialize('User');
+            this.element.appendChild(loader);
+            this.initializeData()
+                .then((feedData) => {
+                    this.element.innerHTML = '';
+                    if (runtime.service('session').getCustomRoles().includes('FEEDS_ADMIN')) {
+                        this.globalPoster = new GlobalPoster({
+                            afterSubmitFn: this.refreshFeed.bind(this),
+                            runtime: runtime
+                        });
+                        this.element.appendChild(this.globalPoster.element);
+                    }
 
+                    let feedList = [
+                        ['global', 'KBase Global'],
+                        ['user', runtime.service('session').getRealname()]
+                    ];
+
+                    let unseenSet = {};
+                    for (const f in feedData) {
+                        unseenSet[f] = feedData[f].unseen;
+                    }
+
+                    this.feedTabs = new FeedTabs({
+                        feeds: feedList,
+                        feedUpdateFn: this.updateFeed.bind(this),
+                        unseen: unseenSet
+                    });
+                    this.element.appendChild(this.feedTabs.element);
+                });
         }
 
-        initialize(displayName) {
-            this.displayName = displayName;
-            this.userFeed.setUserName(displayName + "'s");
-            this.removeFeed();
-            this.refreshFeed({});
+        updateFeed(feedKey) {
+            return this.feedsApi.getNotifications({includeSeen: true})
+                .then(response => {
+                    return response.json();
+                })
+                .then(feed => {
+                    console.log(feed);
+                    if (feed[feedKey]) {
+                        return feed[feedKey];
+                    }
+                    else {
+                        return {};
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                });
         }
 
-        removeFeed() {
-            this.element.style.display = 'none';
-            this.globalFeed.remove();
-            this.userFeed.remove();
+        initializeData() {
+            return this.feedsApi.getNotifications({})
+                .then(response => {
+                    return response.json();
+                })
+                .then(feed => {
+                    console.log(feed);
+                    return feed;
+                })
+                .catch(err => {
+                    this.renderError(err);
+                });
         }
 
         /**
@@ -71,14 +98,18 @@ define([
          *  - source - string
          *  - includeSeen - boolean
          */
-        refreshFeed(filters) {
-            this.feedsApi.getNotifications(filters)
+        refreshFeed() {
+            this.feedsApi.getNotifications({includeSeen: true})
                 .then(response => {
                     return response.json();
                 })
                 .then(feed => {
-                    console.log(feed);
-                    this.renderFeed(feed);
+                    this.feedTabs.refresh(feed);
+                    let unseenSet = {};
+                    for (const f in feed) {
+                        unseenSet[f] = feed[f].unseen;
+                    }
+                    this.feedTabs.setUnseenCounts(unseenSet);
                 })
                 .catch(err => {
                     this.renderError(err);

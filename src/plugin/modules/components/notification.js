@@ -26,27 +26,31 @@ define([
          * - runtime - the runtime object
          */
         constructor(note, config) {
-            this.runtime = config.runtime;
+            // this.runtime = config.runtime;
             this.note = note;
-            this.token = config.token;
-            this.refreshFn = config.refreshFn;
-            this.showSeen = config.showSeen;
+            // this.token = config.token;
+            // this.refreshFn = config.refreshFn;
+            // this.showSeen = config.showSeen;
             this.element = document.createElement('div');
-            this.element.classList.add('row', 'alert');
+            this.element.classList.add('feed-note');
+            if (this.note.seen) {
+                this.element.classList.add('seen');
+            }
+            // this.element.classList.add('row', 'alert');
             this.render();
         }
 
         render() {
-            let level = div({class: 'col-md-1'}, [this.renderLevel()]),
-                body = div({class: 'col-md-10'}, [this.renderBody()]),
-                control = div({class: 'col-md-1'}, [this.renderControl()]);
+            let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
+                body = div({class: 'feed-note-body'}, [this.renderBody()]),
+                control = div({class: 'feed-note-control'}, [this.renderControl()]);
             this.element.innerHTML = level + body + control;
             this.bindEvents();
         }
 
         renderBody() {
             let text = div(this.renderMessage()),
-                infoStamp = small(this.renderCreated() + ' - ' + this.note.source);
+                infoStamp = small(this.renderCreated());
             return text + infoStamp;
         }
 
@@ -66,7 +70,7 @@ define([
                 {style: 'font-size: 1.5em'},
                 a(
                     {href: url, target: '_blank'},
-                    i({class: 'fa fa-external-link-alt'})));
+                    i({class: 'fa fa-external-link'})));
         }
 
         renderLevel() {
@@ -144,20 +148,20 @@ define([
             if (!this.showSeen) {
                 return;
             }
-            this.element.querySelector('#seen-icon').onclick = () => {
-                let action;
-                let feedsApi = FeedsAPI.make(this.runtime.getConfig('services.feeds.url'), this.token);
-                if (this.note.seen) {
-                    action = feedsApi.markUnseen([this.note.id]);
-                }
-                else {
-                    action = feedsApi.markSeen([this.note.id]);
-                }
-                action.then((response) => {
-                    console.log(response);
-                    this.refreshFn();
-                });
-            };
+            // this.element.querySelector('#seen-icon').onclick = () => {
+            //     let action;
+            //     let feedsApi = FeedsAPI.make(this.runtime.getConfig('services.feeds.url'), this.token);
+            //     if (this.note.seen) {
+            //         action = feedsApi.markUnseen([this.note.id]);
+            //     }
+            //     else {
+            //         action = feedsApi.markSeen([this.note.id]);
+            //     }
+            //     action.then((response) => {
+            //         console.log(response);
+            //         this.refreshFn();
+            //     });
+            // };
         }
     }
     return Notification;
