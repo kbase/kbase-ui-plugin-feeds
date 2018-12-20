@@ -87,9 +87,25 @@ define([
             let contentPane = this.element.querySelector('.feed-content');
             contentPane.innerHTML = '';
             this.notes.forEach(note => {
-                let noteObj = new Notification(note);
+                let noteObj = new Notification(note, this.toggleSeen.bind(this));
                 contentPane.appendChild(noteObj.element);
             });
+        }
+
+        toggleSeen(note) {
+            let feedsApi = FeedsAPI.make(
+                this.runtime.getConfig('services.feeds.url'),
+                this.runtime.service('session').getAuthToken()
+            );
+            if (note.seen) {
+                feedsApi.markUnseen([note.id]);
+            }
+            else {
+                feedsApi.markSeen([note.id]);
+            }
+            let noteElem = this.notes.find(n => n.id === note.id);
+            noteElem.seen = !noteElem.seen;
+            this.renderFeed();
         }
 
         /**
@@ -113,10 +129,10 @@ define([
         }
 
         refresh(feed) {
-            this.removeSeenTimeout();
+            // this.removeSeenTimeout();
             this.notes = feed.feed;
             this.renderFeed();
-            this.initSeenTimeout();
+            // this.initSeenTimeout();
         }
 
         removeSeenTimeout() {

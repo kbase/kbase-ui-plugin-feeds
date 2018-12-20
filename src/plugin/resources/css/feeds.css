@@ -20,6 +20,7 @@
     width: 100%;
     padding: 10px 5px;
     border-top: 1px solid #ccc;
+    align-items: center;
 }
 
 .feed-note.seen {
@@ -37,13 +38,25 @@
     font-size: 12pt;
 }
 
-.feed-note-control {
-    width: 10%;
+.feed-link {
+    width: 5%;
     text-align: center;
+    font-size: 1.5em;
+}
+
+.feed-note-control {
+    width: 5%;
+    text-align: center;
+    font-size: 1.5em;
+    visibility: hidden;
 }
 
 .feed-note:hover {
     background-color: rgb(240, 239, 239);
+}
+
+.feed-note:hover .feed-note-control {
+    visibility: visible;
 }
 
 .feed-tabs {
