@@ -1,8 +1,10 @@
 define([
+    'jquery',
     '../api/feeds',
     'kb_common/html',
     '../util'
 ], function(
+    $,
     FeedsAPI,
     HTML,
     Util
@@ -25,8 +27,9 @@ define([
          * - showSeen - boolean, if true, shows an icon of whether a notification has been seen
          * - runtime - the runtime object
          */
-        constructor(note, config) {
+        constructor(note, toggleSeenFn) {
             this.note = note;
+            this.toggleSeenFn = toggleSeenFn;
             this.element = document.createElement('div');
             this.element.classList.add('feed-note');
             if (this.note.seen) {
@@ -38,8 +41,9 @@ define([
         render() {
             let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
                 body = div({class: 'feed-note-body'}, [this.renderBody()]),
+                link = div({class: 'feed-link'}, [this.renderLink()]),
                 control = div({class: 'feed-note-control'}, [this.renderControl()]);
-            this.element.innerHTML = level + body + control;
+            this.element.innerHTML = level + body + link + control;
             this.bindEvents();
         }
 
@@ -49,21 +53,45 @@ define([
             return text + infoStamp;
         }
 
+        /**
+         * Renders controls for dismissing/marking a notification seen.
+         */
         renderControl() {
-            let control = '';
-            // control += this.renderSeen();
-            if (this.note.context && this.note.context.link) {
-                control += this.renderLink(this.note.context.link);
-            }
-            return control;
+            let icon = this.note.seen ? 'eye-slash' : 'eye';
+            let text = this.note.seen ? 'unseen' : 'seen';
+            let btn = span(
+                i({
+                    class: 'fa fa-' + icon,
+                    dataToggle: 'tooltip',
+                    dataPlacement: 'left',
+                    title: 'Mark ' + text,
+                    style: 'cursor: pointer'
+                })
+            );
+            return btn;
         }
 
-        renderLink(url) {
-            return span(
-                {style: 'font-size: 1.5em'},
-                a(
-                    {href: url, target: '_blank'},
-                    i({class: 'fa fa-external-link'})));
+        buildUrl() {
+            if (this.note.context && this.note.context.link) {
+                return this.note.context.link;
+            }
+            else {
+                // do stuff based on notification type.
+                return '';
+            }
+        }
+
+        renderLink() {
+            let url = this.buildUrl();
+            if (url) {
+                return a({
+                    href: url,
+                    target: '_blank'
+                }, i({
+                    class: 'fa fa-external-link'
+                }));
+            }
+            return '';
         }
 
         renderLevel() {
@@ -138,9 +166,9 @@ define([
         }
 
         bindEvents() {
-            if (!this.showSeen) {
-                return;
-            }
+            $(this.element).find('[data-toggle="tooltip"]').tooltip();
+            let seenBtn = this.element.querySelector('.feed-note-control span');
+            seenBtn.onclick = () => this.toggleSeenFn(this.note);
         }
     }
     return Notification;
