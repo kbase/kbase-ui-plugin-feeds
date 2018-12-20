@@ -1,14 +1,10 @@
 define([
-    'bluebird',
     '../api/feeds',
-    './feed',
     './globalPoster',
     './feedTabs',
     '../util'
 ], function (
-    Promise,
     FeedsAPI,
-    Feed,
     GlobalPoster,
     FeedTabs,
     Util
@@ -20,9 +16,9 @@ define([
             let runtime = config.runtime;
             this.token = runtime.service('session').getAuthToken();
             this.notes = [];
-            this.element = document.createElement('div');
+            this.element = config.element; //document.createElement('div');
             this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
-            let loader = Util.loadingElement('3x');
+            let loader = Util.loadingElement('5x');
             this.feedData = {};
 
             this.element.appendChild(loader);
@@ -38,9 +34,11 @@ define([
                     }
 
                     let feedList = [
-                        ['global', 'KBase Global'],
+                        ['global', 'KBase Announcements'],
                         ['user', runtime.service('session').getRealname()]
                     ];
+                    // later, add rest of feeds here, in alphabetical order
+                    // one feed per group
 
                     let unseenSet = {};
                     for (const f in feedData) {
@@ -50,7 +48,9 @@ define([
                     this.feedTabs = new FeedTabs({
                         feeds: feedList,
                         feedUpdateFn: this.updateFeed.bind(this),
-                        unseen: unseenSet
+                        unseen: unseenSet,
+                        globalFeed: feedData.global.feed,
+                        runtime: runtime
                     });
                     this.element.appendChild(this.feedTabs.element);
                 });
@@ -58,11 +58,7 @@ define([
 
         updateFeed(feedKey) {
             return this.feedsApi.getNotifications({includeSeen: true})
-                .then(response => {
-                    return response.json();
-                })
                 .then(feed => {
-                    console.log(feed);
                     if (feed[feedKey]) {
                         return feed[feedKey];
                     }
@@ -77,11 +73,7 @@ define([
 
         initializeData() {
             return this.feedsApi.getNotifications({})
-                .then(response => {
-                    return response.json();
-                })
                 .then(feed => {
-                    console.log(feed);
                     return feed;
                 })
                 .catch(err => {
@@ -100,9 +92,6 @@ define([
          */
         refreshFeed() {
             this.feedsApi.getNotifications({includeSeen: true})
-                .then(response => {
-                    return response.json();
-                })
                 .then(feed => {
                     this.feedTabs.refresh(feed);
                     let unseenSet = {};
@@ -116,16 +105,8 @@ define([
                 });
         }
 
-        renderFeed(feed) {
-            this.removeFeed();
-            this.globalFeed.updateFeed(feed.global, this.token);
-            this.userFeed.updateFeed(feed.user, this.token);
-            this.element.style.removeProperty('display');
-        }
-
         renderError(err) {
-            console.log(err);
-            console.log(JSON.stringify(err));
+            console.error(err);
             this.element.innerHTML = `
                 <div class="alert alert-danger">
                     An error occurred while fetching your feed!

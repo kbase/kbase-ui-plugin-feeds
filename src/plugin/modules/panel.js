@@ -26,9 +26,10 @@ define([
         function start() {
             runtime.send('ui', 'setTitle', 'Notification Feeds');
             myFeed = new FeedController({
-                runtime: runtime
+                runtime: runtime,
+                element: container
             });
-            container.appendChild(myFeed.element);
+            // container.appendChild(myFeed.element);
         }
 
         function stop() {

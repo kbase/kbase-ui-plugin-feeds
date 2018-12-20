@@ -51,9 +51,9 @@ define([
             if (data) {
                 request.body = JSON.stringify(data);
             }
-            console.log(request);
             return fetch(url, request)
-                .then(handleErrors);
+                .then(handleErrors)
+                .then(response => response.json());
         }
 
         function handleErrors (response) {
@@ -87,7 +87,6 @@ define([
                 params.push('seen=1');
             }
             let path = 'api/V1/notifications/?' + params.join('&');
-            console.log(path);
             return makeApiCall('GET', path);
         }
 

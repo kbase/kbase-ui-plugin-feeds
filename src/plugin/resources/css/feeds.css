@@ -1,9 +1,12 @@
 .feeds-container {
     padding: 0 15px;
+    height: 100%;
 }
 
-.controls-form {
-    /* max-width: 300px; */
+.feeds-tabs-container {
+    display: flex;
+    flex-direction: row;
+    height: 90%;
 }
 
 .unseen-badge {
@@ -20,7 +23,7 @@
 }
 
 .feed-note.seen {
-    background-color: rgb(255, 255, 255);
+    background-color: #fff;
 }
 
 .feed-note-icon {
@@ -39,13 +42,18 @@
     text-align: center;
 }
 
+.feed-note:hover {
+    background-color: rgb(240, 239, 239);
+}
+
 .feed-tabs {
     float: left;
     border: 1px solid #ccc;
     border-right: 0;
     font-size: 14pt;
     width: 25%;
-    background-color: rgb(216, 214, 214);
+    height: 100%;
+    background-color: rgb(214, 214, 214);
     cursor: pointer;
 }
 
@@ -71,5 +79,11 @@
     border: 1px solid #ccc;
     border-top: none;
     width: 75%;
-    min-height: 100px;
+    background-color: #fff;
+    height: 100%;
+    flex: 1;
+}
+
+.feed-content .feed-note:last-child {
+    border-bottom: 1px solid #ccc;
 }
