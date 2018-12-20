@@ -3,12 +3,15 @@
  */
 define([
     './notification',
-    '../util'
+    '../util',
+    '../api/feeds'
 ], function (
     Notification,
-    Util
+    Util,
+    FeedsAPI
 ) {
     'use strict';
+    const SEEN_TIMEOUT = 10000;
 
     class FeedTabs {
         /**
@@ -20,17 +23,21 @@ define([
          *
          */
         constructor(config) {
+            this.runtime = config.runtime;
             this.feedUpdateFn = config.feedUpdateFn;
             let feeds = config.feeds;
             this.feeds = {};
             this.order = [];
             this.element = document.createElement('div');
+            this.element.classList.add('feeds-tabs-container');
             feeds.forEach((f) => {
                 this.feeds[f[0]] = f[1];
                 this.order.push(f[0]);
             });
+            this.notes = config.globalFeed;
             this.render();
             this.setUnseenCounts(config.unseen);
+            this.renderFeed();
         }
 
         render() {
@@ -45,7 +52,7 @@ define([
             `;
             this.element.innerHTML = structure;
             this.order.forEach(f => this.addFeed(f, this.feeds[f]));
-            this.element.querySelector('.feed-tabs div:first-child').click();
+            this.element.querySelector('.feed-tabs div:first-child').classList.add('feed-selected');
         }
 
         addFeed(feedKey, feedName) {
@@ -55,7 +62,6 @@ define([
                 <span>${Util.cleanText(feedName)}</span>
                 <span class="badge unseen-badge pull-right" style="display: none"><span>
             `;
-            // tab.textContent = Util.cleanText(feedName);
             tab.setAttribute('data-name', feedKey);
             tab.onclick = () => {
                 this.selectFeed(feedKey);
@@ -74,13 +80,13 @@ define([
             let contentPane = this.element.querySelector('.feed-content');
             contentPane.appendChild(Util.loadingElement('3x'));
             this.feedUpdateFn(feedKey)
-                .then(feed => this.renderFeed(feed.feed));
+                .then(feed => this.refresh(feed));
         }
 
-        renderFeed(notifications) {
+        renderFeed() {
             let contentPane = this.element.querySelector('.feed-content');
             contentPane.innerHTML = '';
-            notifications.forEach(note => {
+            this.notes.forEach(note => {
                 let noteObj = new Notification(note);
                 contentPane.appendChild(noteObj.element);
             });
@@ -107,12 +113,37 @@ define([
         }
 
         refresh(feed) {
-            let activeFeed = this.element.querySelector('.feed-tabs .feed-selected').getAttribute('data-name');
-            let notes = [];
-            if (feed[activeFeed]) {
-                notes = feed[activeFeed].feed;
+            this.removeSeenTimeout();
+            this.notes = feed.feed;
+            this.renderFeed();
+            this.initSeenTimeout();
+        }
+
+        removeSeenTimeout() {
+            if (this.seenTimeout) {
+                clearTimeout(this.seenTimeout);
             }
-            this.renderFeed(notes);
+        }
+
+        initSeenTimeout() {
+            this.seenTimeout = setTimeout(() => {
+                let noteIds = this.notes.map(note => note.id),
+                    feedsApi = FeedsAPI.make(
+                        this.runtime.getConfig('services.feeds.url'),
+                        this.runtime.service('session').getAuthToken()
+                    );
+                feedsApi.markSeen(noteIds)
+                    .then((seenResult) => {
+                        let idNotes = {};
+                        this.notes.forEach(n => idNotes[n.id] = n);
+                        seenResult.seen_notes.forEach(id => idNotes[id].seen = true);
+                        this.renderFeed();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        alert('error while marking seen');
+                    });
+            }, SEEN_TIMEOUT);
         }
     }
 

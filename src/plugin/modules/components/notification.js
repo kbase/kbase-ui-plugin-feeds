@@ -26,17 +26,12 @@ define([
          * - runtime - the runtime object
          */
         constructor(note, config) {
-            // this.runtime = config.runtime;
             this.note = note;
-            // this.token = config.token;
-            // this.refreshFn = config.refreshFn;
-            // this.showSeen = config.showSeen;
             this.element = document.createElement('div');
             this.element.classList.add('feed-note');
             if (this.note.seen) {
                 this.element.classList.add('seen');
             }
-            // this.element.classList.add('row', 'alert');
             this.render();
         }
 
@@ -56,9 +51,7 @@ define([
 
         renderControl() {
             let control = '';
-            if (this.showSeen) {
-                control += this.renderSeen();
-            }
+            // control += this.renderSeen();
             if (this.note.context && this.note.context.link) {
                 control += this.renderLink(this.note.context.link);
             }
@@ -148,20 +141,6 @@ define([
             if (!this.showSeen) {
                 return;
             }
-            // this.element.querySelector('#seen-icon').onclick = () => {
-            //     let action;
-            //     let feedsApi = FeedsAPI.make(this.runtime.getConfig('services.feeds.url'), this.token);
-            //     if (this.note.seen) {
-            //         action = feedsApi.markUnseen([this.note.id]);
-            //     }
-            //     else {
-            //         action = feedsApi.markSeen([this.note.id]);
-            //     }
-            //     action.then((response) => {
-            //         console.log(response);
-            //         this.refreshFn();
-            //     });
-            // };
         }
     }
     return Notification;
