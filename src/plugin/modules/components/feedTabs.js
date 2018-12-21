@@ -89,6 +89,7 @@ define([
         }
 
         renderFeed() {
+            console.log(this.notes);
             let contentPane = this.element.querySelector('.feed-content');
             contentPane.innerHTML = '';
             this.notes.forEach(note => {

@@ -2,12 +2,16 @@ define([
     'jquery',
     '../api/feeds',
     'kb_common/html',
-    '../util'
+    '../util',
+    '../notifications/base',
+    '../notifications/groups'
 ], function(
     $,
     FeedsAPI,
     HTML,
-    Util
+    Util,
+    DefaultNotification,
+    GroupsNotification
 ) {
     'use strict';
     let t = HTML.tag,
@@ -16,6 +20,8 @@ define([
         small = t('small'),
         i = t('i'),
         a = t('a');
+
+    const GROUPS = 'groupsservice';
 
     class Notification {
         /**
@@ -143,25 +149,36 @@ define([
                 return Util.cleanText(this.note.context.text);
             }
             else {
-                let msg;
-                switch(this.note.verb) {
-                case 'invited':
-                    let obj = this.note.object;
-                    if (this.note.context && this.note.context.groupid) {
-                        obj = this.note.context.groupid;
-                    }
-                    msg = this.note.actor + ' ' + this.note.verb + ' you to join ' + obj;
-                    break;
-                case 'shared':
-                    msg = this.note.actor + ' ' + this.note.verb + ' with you.';
-                    break;
-                case 'requested':
-                    msg = this.note.actor + ' ' + this.note.verb + ' to join the group ' + this.note.object;
+                let noteObj;
+                switch(this.note.source) {
+                case GROUPS:
+                    noteObj = new GroupsNotification(this.note);
                     break;
                 default:
-                    msg = this.note.actor + ' ' + this.note.verb + ' ' + this.note.object;
+                    noteObj = new DefaultNotification(this.note);
+                    break;
                 }
-                return msg;
+                return noteObj.buildHtml();
+
+                // let msg;
+                // switch(this.note.verb) {
+                // case 'invited':
+                //     let obj = this.note.object;
+                //     if (this.note.context && this.note.context.groupid) {
+                //         obj = this.note.context.groupid;
+                //     }
+                //     msg = this.note.actor + ' ' + this.note.verb + ' you to join ' + obj;
+                //     break;
+                // case 'shared':
+                //     msg = this.note.actor + ' ' + this.note.verb + ' with you.';
+                //     break;
+                // case 'requested':
+                //     msg = this.note.actor + ' ' + this.note.verb + ' to join the group ' + this.note.object;
+                //     break;
+                // default:
+                //     msg = this.note.actor + ' ' + this.note.verb + ' ' + this.note.object;
+                // }
+                // return msg;
             }
         }
 

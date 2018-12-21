@@ -13,6 +13,19 @@
     background-color: rgb(169, 68, 66);
 }
 
+.feed-actor {
+    font-weight: bold;
+}
+
+.feed-actor a {
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.feed-actor a:hover {
+    text-decoration: underline;
+}
+
 .feed-note {
     display: flex;
     flex-direction: row;
