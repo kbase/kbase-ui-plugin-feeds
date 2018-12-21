@@ -102,15 +102,21 @@ define([
                 this.runtime.getConfig('services.feeds.url'),
                 this.runtime.service('session').getAuthToken()
             );
+            let prom = null;
             if (note.seen) {
-                feedsApi.markUnseen([note.id]);
+                prom = feedsApi.markUnseen([note.id]);
             }
             else {
-                feedsApi.markSeen([note.id]);
+                prom = feedsApi.markSeen([note.id]);
             }
-            let noteElem = this.notes.find(n => n.id === note.id);
-            noteElem.seen = !noteElem.seen;
-            this.renderFeed();
+            prom.then((res) => {
+                if ((res.unseen_notes && res.unseen_notes[0] === note.id) ||
+                    (res.seen_notes && res.seen_notes[0] === note.id)) {
+                    let noteElem = this.notes.find(n => n.id === note.id);
+                    noteElem.seen = !noteElem.seen;
+                    this.renderFeed();
+                }
+            });
         }
 
         /**
