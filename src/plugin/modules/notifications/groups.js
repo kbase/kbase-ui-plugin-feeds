@@ -43,7 +43,7 @@ define([
             case 'invited':
                 return '#orgs';
             default:
-                return null;
+                return '';
             }
         }
 

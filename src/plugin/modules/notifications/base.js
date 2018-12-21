@@ -46,7 +46,15 @@ define([
                 msg = actor + ' ' + this.note.verb + ' ' + this.note.object;
             }
             return msg;
+        }
 
+        getLink() {
+            if (this.note.context && this.note.context.link) {
+                return this.note.context.link;
+            }
+            else {
+                return '';
+            }
         }
     }
 

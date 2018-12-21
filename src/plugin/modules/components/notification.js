@@ -35,6 +35,7 @@ define([
          */
         constructor(note, toggleSeenFn) {
             this.note = note;
+            this.noteObj = this.makeNoteObj();
             this.toggleSeenFn = toggleSeenFn;
             this.element = document.createElement('div');
             this.element.classList.add('feed-note');
@@ -42,6 +43,15 @@ define([
                 this.element.classList.add('seen');
             }
             this.render();
+        }
+
+        makeNoteObj() {
+            switch(this.note.source) {
+            case GROUPS:
+                return new GroupsNotification(this.note);
+            default:
+                return new DefaultNotification(this.note);
+            }
         }
 
         render() {
@@ -77,18 +87,8 @@ define([
             return btn;
         }
 
-        buildUrl() {
-            if (this.note.context && this.note.context.link) {
-                return this.note.context.link;
-            }
-            else {
-                // do stuff based on notification type.
-                return '';
-            }
-        }
-
         renderLink() {
-            let url = this.buildUrl();
+            let url = this.noteObj.getLink();
             if (url) {
                 return a({
                     href: url,
@@ -149,36 +149,7 @@ define([
                 return Util.cleanText(this.note.context.text);
             }
             else {
-                let noteObj;
-                switch(this.note.source) {
-                case GROUPS:
-                    noteObj = new GroupsNotification(this.note);
-                    break;
-                default:
-                    noteObj = new DefaultNotification(this.note);
-                    break;
-                }
-                return noteObj.buildHtml();
-
-                // let msg;
-                // switch(this.note.verb) {
-                // case 'invited':
-                //     let obj = this.note.object;
-                //     if (this.note.context && this.note.context.groupid) {
-                //         obj = this.note.context.groupid;
-                //     }
-                //     msg = this.note.actor + ' ' + this.note.verb + ' you to join ' + obj;
-                //     break;
-                // case 'shared':
-                //     msg = this.note.actor + ' ' + this.note.verb + ' with you.';
-                //     break;
-                // case 'requested':
-                //     msg = this.note.actor + ' ' + this.note.verb + ' to join the group ' + this.note.object;
-                //     break;
-                // default:
-                //     msg = this.note.actor + ' ' + this.note.verb + ' ' + this.note.object;
-                // }
-                // return msg;
+                return this.noteObj.buildHtml();
             }
         }
 
