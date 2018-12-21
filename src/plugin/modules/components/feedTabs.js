@@ -70,6 +70,10 @@ define([
         }
 
         selectFeed(feedKey) {
+            let currentFeed = this.element.querySelector('.feed-tabs div.feed-selected');
+            if (feedKey === currentFeed.getAttribute('data-name')) {
+                return;
+            }
             this.element
                 .querySelectorAll('.feed-tabs div')
                 .forEach(n => n.classList.remove('feed-selected'));
@@ -78,6 +82,7 @@ define([
                 .classList
                 .add('feed-selected');
             let contentPane = this.element.querySelector('.feed-content');
+            contentPane.innerHTML = '';
             contentPane.appendChild(Util.loadingElement('3x'));
             this.feedUpdateFn(feedKey)
                 .then(feed => this.refresh(feed));
