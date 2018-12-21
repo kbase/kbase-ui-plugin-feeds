@@ -73,6 +73,9 @@ define([
          * Renders controls for dismissing/marking a notification seen.
          */
         renderControl() {
+            if (!this.toggleSeenFn) {
+                return '';
+            }
             let icon = this.note.seen ? 'eye-slash' : 'eye';
             let text = this.note.seen ? 'unseen' : 'seen';
             let btn = span(
@@ -156,7 +159,9 @@ define([
         bindEvents() {
             $(this.element).find('[data-toggle="tooltip"]').tooltip();
             let seenBtn = this.element.querySelector('.feed-note-control span');
-            seenBtn.onclick = () => this.toggleSeenFn(this.note);
+            if (seenBtn) {
+                seenBtn.onclick = () => this.toggleSeenFn(this.note);
+            }
         }
     }
     return Notification;

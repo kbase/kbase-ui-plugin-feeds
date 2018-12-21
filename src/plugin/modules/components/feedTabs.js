@@ -70,8 +70,7 @@ define([
         }
 
         selectFeed(feedKey) {
-            let currentFeed = this.element.querySelector('.feed-tabs div.feed-selected');
-            if (feedKey === currentFeed.getAttribute('data-name')) {
+            if (feedKey === this.getCurrentFeedId()) {
                 return;
             }
             this.element
@@ -92,10 +91,27 @@ define([
             console.log(this.notes);
             let contentPane = this.element.querySelector('.feed-content');
             contentPane.innerHTML = '';
+            let toggleSeenFn = this.getCurrentFeedId() !== 'global' ? this.toggleSeen.bind(this) : null;
+            if (!this.notes || this.notes.length === 0) {
+                contentPane.innerHTML = this.emptyNotification();
+            }
             this.notes.forEach(note => {
-                let noteObj = new Notification(note, this.toggleSeen.bind(this));
+                let noteObj = new Notification(note, toggleSeenFn);
                 contentPane.appendChild(noteObj.element);
             });
+        }
+
+        emptyNotification() {
+            return `<div class="feed-note alert-info">
+                <div class="feed-note-icon">
+                    <span style="font-size: 1.5em">
+                        <i class="fa fa-check"></i>
+                    </span>
+                </div>
+                <div class="feed-note-body">
+                    You have no notifications to view!
+                </div>
+            </div>`;
         }
 
         toggleSeen(note) {
@@ -115,9 +131,17 @@ define([
                     (res.seen_notes && res.seen_notes[0] === note.id)) {
                     let noteElem = this.notes.find(n => n.id === note.id);
                     noteElem.seen = !noteElem.seen;
+                    let unseenCount = this.notes.filter(n => !n.seen).length;
                     this.renderFeed();
+                    let counts = {};
+                    counts[this.getCurrentFeedId()] = unseenCount;
+                    this.setUnseenCounts(counts);
                 }
             });
+        }
+
+        getCurrentFeedId() {
+            return this.element.querySelector('.feed-tabs div.feed-selected').getAttribute('data-name');
         }
 
         /**
@@ -126,16 +150,18 @@ define([
          * KVP - keys = key name of feeds, values = number of unseen
          */
         setUnseenCounts(unseen) {
-            this.element
-                .querySelectorAll('.feed-tabs span.badge')
-                .forEach(n => n.style.display='none');
-
+            // this.element
+            //     .querySelectorAll('.feed-tabs span.badge')
+            //     .forEach(n => n.style.display='none');
             for (const feedKey in unseen) {
                 let count = unseen[feedKey];
+                let badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
                 if (count > 0) {
-                    let badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
                     badge.innerHTML = unseen[feedKey];
                     badge.style.display = null;
+                }
+                else {
+                    badge.style.display = 'none';
                 }
             }
         }
