@@ -167,10 +167,17 @@ define([
         }
 
         refresh(feed) {
-            // this.removeSeenTimeout();
+            if (!feed) {
+                return;
+            }
+            if (!feed.feed) {
+                let curId = this.getCurrentFeedId();
+                if (feed[curId]) {
+                    feed = feed[curId];
+                }
+            }
             this.notes = feed.feed;
             this.renderFeed();
-            // this.initSeenTimeout();
         }
 
         removeSeenTimeout() {
