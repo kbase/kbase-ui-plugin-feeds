@@ -32,6 +32,7 @@ define([
          * - refreshFn - called when something gets marked seen/unseen
          * - showSeen - boolean, if true, shows an icon of whether a notification has been seen
          * - runtime - the runtime object
+         * - canExpire - boolean, if true, this notification can be expired and removed.
          */
         constructor(note, toggleSeenFn) {
             this.note = note;
