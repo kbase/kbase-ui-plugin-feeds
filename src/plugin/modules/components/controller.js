@@ -20,12 +20,14 @@ define([
             this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
             let loader = Util.loadingElement('5x');
             this.feedData = {};
+            this.isAdmin = false;
 
             this.element.appendChild(loader);
             this.initializeData()
                 .then((feedData) => {
                     this.element.innerHTML = '';
                     if (runtime.service('session').getCustomRoles().includes('FEEDS_ADMIN')) {
+                        this.isAdmin = true;
                         this.globalPoster = new GlobalPoster({
                             afterSubmitFn: this.refreshFeed.bind(this),
                             runtime: runtime
@@ -50,7 +52,8 @@ define([
                         feedUpdateFn: this.updateFeed.bind(this),
                         unseen: unseenSet,
                         globalFeed: feedData.global.feed,
-                        runtime: runtime
+                        runtime: runtime,
+                        isAdmin: this.isAdmin
                     });
                     this.element.appendChild(this.feedTabs.element);
                 });

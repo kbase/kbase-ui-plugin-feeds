@@ -23,6 +23,7 @@ define([
          *
          */
         constructor(config) {
+            this.isAdmin = config.isAdmin;
             this.runtime = config.runtime;
             this.feedUpdateFn = config.feedUpdateFn;
             let feeds = config.feeds;
@@ -89,14 +90,16 @@ define([
 
         renderFeed() {
             console.log(this.notes);
-            let contentPane = this.element.querySelector('.feed-content');
+            let contentPane = this.element.querySelector('.feed-content'),
+                curFeed = this.getCurrentFeedId(),
+                toggleSeenFn = curFeed !== 'global' ? this.toggleSeen.bind(this) : null,
+                expireNoteFn = curFeed === 'global' ? this.expireNote.bind(this) : null;
             contentPane.innerHTML = '';
-            let toggleSeenFn = this.getCurrentFeedId() !== 'global' ? this.toggleSeen.bind(this) : null;
             if (!this.notes || this.notes.length === 0) {
                 contentPane.innerHTML = this.emptyNotification();
             }
             this.notes.forEach(note => {
-                let noteObj = new Notification(note, toggleSeenFn);
+                let noteObj = new Notification(note, toggleSeenFn, expireNoteFn);
                 contentPane.appendChild(noteObj.element);
             });
         }
@@ -112,6 +115,10 @@ define([
                     You have no notifications to view!
                 </div>
             </div>`;
+        }
+
+        expireNote(note) {
+            alert("expiring notification " + note.id);
         }
 
         toggleSeen(note) {
@@ -150,9 +157,6 @@ define([
          * KVP - keys = key name of feeds, values = number of unseen
          */
         setUnseenCounts(unseen) {
-            // this.element
-            //     .querySelectorAll('.feed-tabs span.badge')
-            //     .forEach(n => n.style.display='none');
             for (const feedKey in unseen) {
                 let count = unseen[feedKey];
                 let badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
