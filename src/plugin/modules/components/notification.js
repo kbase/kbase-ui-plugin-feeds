@@ -32,11 +32,13 @@ define([
          * - refreshFn - called when something gets marked seen/unseen
          * - showSeen - boolean, if true, shows an icon of whether a notification has been seen
          * - runtime - the runtime object
+         * - expireNoteFn - if note null, then this notification can be expired by the user (which means gone forever)
          */
-        constructor(note, toggleSeenFn) {
+        constructor(note, toggleSeenFn, expireNoteFn) {
             this.note = note;
             this.noteObj = this.makeNoteObj();
             this.toggleSeenFn = toggleSeenFn;
+            this.expireNoteFn = expireNoteFn;
             this.element = document.createElement('div');
             this.element.classList.add('feed-note');
             if (this.note.seen) {
@@ -58,7 +60,7 @@ define([
             let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
                 body = div({class: 'feed-note-body'}, [this.renderBody()]),
                 link = div({class: 'feed-link'}, [this.renderLink()]),
-                control = div({class: 'feed-note-control'}, [this.renderControl()]);
+                control = div({class: 'feed-note-control'}, this.renderControl());
             this.element.innerHTML = level + body + link + control;
             this.bindEvents();
         }
@@ -73,21 +75,40 @@ define([
          * Renders controls for dismissing/marking a notification seen.
          */
         renderControl() {
-            if (!this.toggleSeenFn) {
-                return '';
-            }
+            let seenBtn = '';
             let icon = this.note.seen ? 'eye-slash' : 'eye';
             let text = this.note.seen ? 'unseen' : 'seen';
-            let btn = span(
-                i({
-                    class: 'fa fa-' + icon,
-                    dataToggle: 'tooltip',
-                    dataPlacement: 'left',
-                    title: 'Mark ' + text,
-                    style: 'cursor: pointer'
-                })
-            );
-            return btn;
+            if (this.toggleSeenFn) {
+                seenBtn = span(
+                    {
+                        class: 'feed-seen'
+                    },
+                    i({
+                        class: 'fa fa-' + icon,
+                        dataToggle: 'tooltip',
+                        dataPlacement: 'left',
+                        title: 'Mark ' + text,
+                        style: 'cursor: pointer'
+                    })
+                );
+            }
+
+            let expBtn = '';
+            if (this.expireNoteFn) {
+                expBtn = span(
+                    {
+                        class: 'feed-expire'
+                    },
+                    i({
+                        class: 'fa fa-times',
+                        dataToggle: 'tooltip',
+                        dataPlacement: 'left',
+                        title: 'Expire this notification',
+                        style: 'cursor: pointer'
+                    })
+                );
+            }
+            return [seenBtn, expBtn];
         }
 
         renderLink() {
@@ -158,9 +179,13 @@ define([
 
         bindEvents() {
             $(this.element).find('[data-toggle="tooltip"]').tooltip();
-            let seenBtn = this.element.querySelector('.feed-note-control span');
+            let seenBtn = this.element.querySelector('.feed-note-control span.feed-seen');
             if (seenBtn) {
                 seenBtn.onclick = () => this.toggleSeenFn(this.note);
+            }
+            let expireBtn = this.element.querySelector('.feed-note-control span.feed-expire');
+            if (expireBtn) {
+                expireBtn.onclick = () => this.expireNoteFn(this.note);
             }
         }
     }
