@@ -118,7 +118,21 @@ define([
         }
 
         expireNote(note) {
-            alert("expiring notification " + note.id);
+            if (confirm('This will expire the notification for all users.\nIt will be removed from all feeds. Continue?')) {
+                let feedsApi = FeedsAPI.make(
+                    this.runtime.getConfig('services.feeds.url'),
+                    this.runtime.service('session').getAuthToken()
+                );
+                feedsApi.expireGlobalNotification(note.id)
+                    .then(() => {
+                        return this.feedUpdateFn(this.getCurrentFeedId());
+                    })
+                    .then(feed => this.refresh(feed))
+                    .catch((err) => {
+                        alert('Sorry, an error happened while trying to expire a notification.\nSee console for details.');
+                        console.error(err);
+                    });
+            }
         }
 
         toggleSeen(note) {
@@ -171,17 +185,21 @@ define([
         }
 
         refresh(feed) {
+            let curFeed = this.getCurrentFeedId();
             if (!feed) {
                 return;
             }
             if (!feed.feed) {
-                let curId = this.getCurrentFeedId();
-                if (feed[curId]) {
-                    feed = feed[curId];
+                if (feed[curFeed]) {
+                    feed = feed[curFeed];
                 }
             }
             this.notes = feed.feed;
             this.renderFeed();
+            let unseenCount = this.notes.filter(n => !n.seen).length;
+            let unseen = {};
+            unseen[curFeed] = unseenCount;
+            this.setUnseenCounts(unseen);
         }
 
         removeSeenTimeout() {
