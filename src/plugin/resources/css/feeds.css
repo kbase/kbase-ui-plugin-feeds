@@ -64,9 +64,9 @@
     visibility: hidden;
 }
 
-.feed-note:hover {
+/* .feed-note:hover {
     background-color: rgb(240, 239, 239);
-}
+} */
 
 .feed-note:hover .feed-note-control {
     visibility: visible;

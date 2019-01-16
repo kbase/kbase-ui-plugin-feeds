@@ -59,7 +59,7 @@ define([
                             return -1;
                         }
                         else {
-                            return a.localeCompare(b);
+                            return feedData[a].name.localeCompare(feedData[a].name);
                         }
                     });
 
