@@ -54,7 +54,6 @@ define([
         objectHtml() {
             let msg = '',
                 obj = this.note.object;
-            alert(JSON.stringify(obj));
             switch(this.note.verb) {
             case 'requested':
             case 'invited':
