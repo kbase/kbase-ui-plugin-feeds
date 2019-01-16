@@ -1,6 +1,6 @@
 define([
     '../util'
-], function(
+], function (
     Util
 ) {
     'use strict';
@@ -28,21 +28,21 @@ define([
 
         buildHtml() {
             let actor = this.actorHtml(),
-                msg;
-            switch(this.note.verb) {
+                msg, obj;
+            switch (this.note.verb) {
             case 'invited':
-                let obj = this.note.object;
+                obj = this.note.object;
                 msg = actor + ' ' + this.note.verb + ' you to join the group ' + (obj.name ? obj.name : obj.id);
                 break;
             case 'shared':
                 msg = actor + ' ' + this.note.verb + ' with you.';
                 break;
             case 'requested':
-                let obj = this.note.object;
+                obj = this.note.object;
                 msg = actor + ' ' + this.note.verb + ' to join the group ' + (obj.name ? obj.name : obj.id);
                 break;
             default:
-                let obj = this.note.object;
+                obj = this.note.object;
                 msg = actor + ' ' + this.note.verb + ' ' + (obj.name ? obj.name : obj.id);
             }
             return msg;
