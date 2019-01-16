@@ -11,12 +11,13 @@ define([
         }
 
         actorHtml() {
-            let actorId = Util.cleanText(this.note.actor),
-                actorName = Util.cleanText(this.note.actor_name),
+            let actor = this.note.actor,
+                actorId = Util.cleanText(actor.id),
+                actorName = actor.name ? Util.cleanText(actor.name) : null,
                 idHtml = `<a href="#people/${actorId}">${actorId}</a>`,
                 actorHtml = '<span class="feed-actor">';
 
-            if (actorName) {
+            if (actorName !== null) {
                 actorHtml += `${actorName} (${idHtml})`;
             }
             else {
@@ -31,19 +32,18 @@ define([
             switch(this.note.verb) {
             case 'invited':
                 let obj = this.note.object;
-                if (this.note.context && this.note.context.groupid) {
-                    obj = this.note.context.groupid;
-                }
-                msg = actor + ' ' + this.note.verb + ' you to join ' + obj;
+                msg = actor + ' ' + this.note.verb + ' you to join the group ' + (obj.name ? obj.name : obj.id);
                 break;
             case 'shared':
                 msg = actor + ' ' + this.note.verb + ' with you.';
                 break;
             case 'requested':
-                msg = actor + ' ' + this.note.verb + ' to join the group ' + this.note.object;
+                let obj = this.note.object;
+                msg = actor + ' ' + this.note.verb + ' to join the group ' + (obj.name ? obj.name : obj.id);
                 break;
             default:
-                msg = actor + ' ' + this.note.verb + ' ' + this.note.object;
+                let obj = this.note.object;
+                msg = actor + ' ' + this.note.verb + ' ' + (obj.name ? obj.name : obj.id);
             }
             return msg;
         }
