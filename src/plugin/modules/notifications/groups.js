@@ -54,13 +54,14 @@ define([
         objectHtml() {
             let msg = '',
                 obj = this.note.object;
+            alert(JSON.stringify(obj));
             switch(this.note.verb) {
             case 'requested':
             case 'invited':
-                msg = '<a href="#orgs">' + obj + '</a>';
+                msg = '<a href="#orgs">' + (obj.name ? obj.name : obj.id) + '</a>';
                 break;
             default:
-                msg = obj;
+                msg = obj.name ? obj.name : obj.id;
                 break;
             }
             return msg;

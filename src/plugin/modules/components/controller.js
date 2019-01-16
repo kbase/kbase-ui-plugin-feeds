@@ -35,12 +35,35 @@ define([
                         this.element.appendChild(this.globalPoster.element);
                     }
 
-                    let feedList = [
-                        ['global', 'KBase Announcements'],
-                        ['user', runtime.service('session').getRealname()]
-                    ];
-                    // later, add rest of feeds here, in alphabetical order
+                    this.myFeeds = {};
+                    //     global: ['global', 'KBase Announcements'],
+                    //     user: ['user', runtime.service('session').getRealname()]
+                    // };
+                    // add rest of feeds here, in alphabetical order
                     // one feed per group
+                    Object.keys(feedData).forEach((feed) => {
+                        this.myFeeds[feed] = [feed, feedData[feed].name];
+                    });
+                    let feedOrder = Object.keys(this.myFeeds);
+                    feedOrder.sort((a, b) => {
+                        if (a === 'global') {
+                            return -1;
+                        }
+                        else if (a === 'global' && b === 'user') {
+                            return -1;
+                        }
+                        else if (a === 'user' && b === 'global') {
+                            return 1;
+                        }
+                        else if (a === 'user') {
+                            return -1;
+                        }
+                        else {
+                            return a.localeCompare(b);
+                        }
+                    });
+
+                    let feedList = feedOrder.map(feed => this.myFeeds[feed]);
 
                     let unseenSet = {};
                     for (const f in feedData) {
