@@ -17,7 +17,8 @@ define([
          */
         buildHtml() {
             let actor = this.actorHtml(),
-                msg = '';
+                msg = '',
+                objText = this.note.object.name ? this.note.object.name : this.note.object.id;
 
             switch(this.note.verb) {
             case 'requested':
@@ -27,7 +28,7 @@ define([
                 msg = actor + ' has invited you to join the group ' + this.objectHtml() + '.';
                 break;
             default:
-                msg = actor + ' ' + this.note.verb + ' ' + this.note.object;
+                msg = actor + ' ' + this.note.verb + ' ' + objText;
             }
             return msg;
         }
@@ -53,14 +54,19 @@ define([
          */
         objectHtml() {
             let msg = '',
-                obj = this.note.object;
+                obj = this.note.object,
+                objText = obj.name ? obj.name : obj.id,
+                url = '#orgs';
             switch(this.note.verb) {
             case 'requested':
             case 'invited':
-                msg = '<a href="#orgs">' + (obj.name ? obj.name : obj.id) + '</a>';
+                if (obj.name) {
+                    url += '?view=org&viewParams={\'id\':\'' + obj.id + '\'}';
+                }
+                msg = '<a href="' + url + '">' + objText + '</a>';
                 break;
             default:
-                msg = obj.name ? obj.name : obj.id;
+                msg = objText;
                 break;
             }
             return msg;

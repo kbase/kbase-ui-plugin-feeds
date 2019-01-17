@@ -16,7 +16,7 @@ define([
             let runtime = config.runtime;
             this.token = runtime.service('session').getAuthToken();
             this.notes = [];
-            this.element = config.element; //document.createElement('div');
+            this.element = config.element;
             this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
             let loader = Util.loadingElement('5x');
             this.feedData = {};
@@ -36,32 +36,23 @@ define([
                     }
 
                     this.myFeeds = {};
-                    //     global: ['global', 'KBase Announcements'],
-                    //     user: ['user', runtime.service('session').getRealname()]
-                    // };
-                    // add rest of feeds here, in alphabetical order
-                    // one feed per group
+                    // make an object from all feeds where key = feed id, value = feed info
                     Object.keys(feedData).forEach((feed) => {
                         this.myFeeds[feed] = [feed, feedData[feed].name];
                     });
+                    // make the order. Should be:
+                    // 0. global
+                    // 1. user
+                    // rest = other feeds in alphabetical order
+                    // seed with just global and user
                     let feedOrder = Object.keys(this.myFeeds);
+                    feedOrder.splice(feedOrder.indexOf('global'), 1);
+                    feedOrder.splice(feedOrder.indexOf('user'), 1);
                     feedOrder.sort((a, b) => {
-                        if (a === 'global') {
-                            return -1;
-                        }
-                        else if (a === 'global' && b === 'user') {
-                            return -1;
-                        }
-                        else if (a === 'user' && b === 'global') {
-                            return 1;
-                        }
-                        else if (a === 'user') {
-                            return -1;
-                        }
-                        else {
-                            return feedData[a].name.localeCompare(feedData[a].name);
-                        }
+                        return feedData[a].name.localeCompare(feedData[b].name);
                     });
+                    feedOrder.unshift('user');
+                    feedOrder.unshift('global');
 
                     let feedList = feedOrder.map(feed => this.myFeeds[feed]);
 

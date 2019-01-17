@@ -28,22 +28,20 @@ define([
 
         buildHtml() {
             let actor = this.actorHtml(),
-                msg, obj;
+                msg = actor + ' ' + this.note.verb,
+                objText = this.note.object.name ? this.note.object.name : this.note.object.id;
             switch (this.note.verb) {
             case 'invited':
-                obj = this.note.object;
-                msg = actor + ' ' + this.note.verb + ' you to join the group ' + (obj.name ? obj.name : obj.id);
+                msg += ' you to join the group ' + objText;
                 break;
             case 'shared':
-                msg = actor + ' ' + this.note.verb + ' with you.';
+                msg += ' with you.';
                 break;
             case 'requested':
-                obj = this.note.object;
-                msg = actor + ' ' + this.note.verb + ' to join the group ' + (obj.name ? obj.name : obj.id);
+                msg += ' to join the group ' + objText;
                 break;
             default:
-                obj = this.note.object;
-                msg = actor + ' ' + this.note.verb + ' ' + (obj.name ? obj.name : obj.id);
+                msg += ' ' + objText;
             }
             return msg;
         }
