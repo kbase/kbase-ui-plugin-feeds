@@ -61,7 +61,7 @@ define([
             case 'requested':
             case 'invited':
                 if (obj.name) {
-                    url += '?view=org&viewParams={\'id\':\'' + obj.id + '\'}';
+                    url += '/' + obj.id;
                 }
                 msg = '<a href="' + url + '">' + objText + '</a>';
                 break;
