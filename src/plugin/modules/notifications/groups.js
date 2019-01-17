@@ -55,11 +55,15 @@ define([
         objectHtml() {
             let msg = '',
                 obj = this.note.object,
-                objText = obj.name ? obj.name : obj.id;
+                objText = obj.name ? obj.name : obj.id,
+                url = '#orgs';
             switch(this.note.verb) {
             case 'requested':
             case 'invited':
-                msg = '<a href="#orgs">' + objText + '</a>';
+                if (obj.name) {
+                    url += '?view=org&viewParams={\'id\':\'' + obj.id + '\'}';
+                }
+                msg = '<a href="' + url + '">' + objText + '</a>';
                 break;
             default:
                 msg = objText;
