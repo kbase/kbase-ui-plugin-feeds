@@ -40,6 +40,7 @@ define([
                     Object.keys(feedData).forEach((feed) => {
                         this.myFeeds[feed] = [feed, feedData[feed].name];
                     });
+                    this.myFeeds.global[1] = 'KBase Announcements';
                     // make the order. Should be:
                     // 0. global
                     // 1. user
