@@ -11,63 +11,53 @@ define([
         }
 
         entityHtml(e) {
-            e.id = Util.cleanText(e.id);
-            e.name = Util.cleanText(e.name);
+            let id = Util.cleanText(e.id),
+                name = Util.cleanText(e.name);
             let msg = '';
             switch(e.type) {
             case 'user':
-                if (e.name !== null) {
-                    msg = `${e.name} (${this.userLink(e.id)})`;
+                if (name !== null) {
+                    msg = `${name} (${this.userLink(id)})`;
                 }
                 else {
-                    msg = this.userLink(e.id);
+                    msg = this.userLink(id);
                 }
                 break;
             case 'group':
-                msg = this.groupLink(e);
+                msg = this.groupLink(id, name);
                 break;
+            case 'workspace':
             case 'narrative':
-                msg = this.narrativeLink(e);
+                msg = this.narrativeLink(id, name);
+                if (!name) {
+                    msg += ' (name not accessible)';
+                }
                 break;
             default:
-                if (e.name !== null) {
-                    msg = `${e.name} (${e.id})`;
+                if (name !== null) {
+                    msg = `${name} (${id})`;
                 }
                 else {
-                    msg = e.id;
+                    msg = id;
                 }
                 break;
             }
             return `<span class="feed-entity">${msg}</span>`;
         }
 
-        narrativeLink(e) {
-            return `<a href="narrative/${e.id}">${e.name ? e.name : e.id}</a>`;
+        narrativeLink(id, name) {
+            name = name || id;
+            return `<a href="narrative/${id}">${name}</a>`;
         }
 
-        groupLink(e) {
-            return `<a href="#orgs/${e.id}">${(e.name ? e.name : e.id)}</a>`;
+        groupLink(id, name) {
+            name = name || id;
+            return `<a href="#orgs/${id}">${name}</a>`;
         }
 
         userLink(userId) {
             return `<a href="#people/${userId}">${userId}</a>`;
         }
-
-        // actorHtml() {
-        //     let actor = this.note.actor,
-        //         actorId = Util.cleanText(actor.id),
-        //         actorName = actor.name ? Util.cleanText(actor.name) : null,
-        //         idHtml = this.userLink(actorId),
-        //         actorHtml = '<span class="feed-entity">';
-
-        //     if (actorName !== null) {
-        //         actorHtml += `${actorName} (${idHtml})`;
-        //     }
-        //     else {
-        //         actorHtml += `${idHtml}`;
-        //     }
-        //     return actorHtml + '</span>';
-        // }
 
         buildHtml() {
             let actor = this.entityHtml(this.note.actor),

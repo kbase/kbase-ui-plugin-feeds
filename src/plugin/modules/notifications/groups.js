@@ -18,12 +18,25 @@ define([
         buildHtml() {
             let actor = this.entityHtml(this.note.actor),
                 msg = '',
-                objText = this.note.object.name ? this.note.object.name : this.note.object.id,
                 target = this.note.target;
 
             switch(this.note.verb) {
             case 'requested':
-                msg = actor + ' has requested to join the group ' + this.entityHtml(this.note.object) + '.'; // which you administer.';
+                if (target.length) {
+                    if (target.length === 1) {
+                        msg = actor + ' has requested to add ';
+                        if (target[0].type === 'workspace') {
+                            msg += ' the Narrative ';
+                        } else {
+                            msg += ' the Narrative ';
+                        }
+                        msg += this.entityHtml(target[0]) + ' to the group ';
+                    }
+                }
+                else {
+                    msg = actor + ' has requested to join the group ';
+                }
+                msg += this.entityHtml(this.note.object) + '.';
                 break;
             case 'invited':
                 msg = actor + ' has invited you to join the group ' + this.entityHtml(this.note.object) + '.';
@@ -44,7 +57,7 @@ define([
                 }
                 break;
             default:
-                msg = actor + ' ' + this.note.verb + ' ' + objText;
+                msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
             }
             return msg;
         }
@@ -63,30 +76,6 @@ define([
                 return '';
             }
         }
-
-        /**
-         * Renders the object of this notification. It might be a link to the groups service,
-         * it might be just text. Depends on context.
-         */
-        // objectHtml() {
-        //     let msg = '',
-        //         obj = this.note.object,
-        //         objText = obj.name ? obj.name : obj.id,
-        //         url = '#orgs';
-        //     switch(this.note.verb) {
-        //     case 'requested':
-        //     case 'invited':
-        //         if (obj.name) {
-        //             url += '/' + obj.id;
-        //         }
-        //         msg = '<a href="' + url + '">' + objText + '</a>';
-        //         break;
-        //     default:
-        //         msg = objText;
-        //         break;
-        //     }
-        //     return msg;
-        // }
     }
 
     return GroupNotification;
