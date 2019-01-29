@@ -1,7 +1,9 @@
 define([
-    '../util'
+    '../util',
+    './icons'
 ], function (
-    Util
+    Util,
+    Icons
 ) {
     'use strict';
 
@@ -12,16 +14,12 @@ define([
 
         entityHtml(e) {
             let id = Util.cleanText(e.id),
-                name = Util.cleanText(e.name);
-            let msg = '';
+                name = Util.cleanText(e.name),
+                msg = '',
+                icon = Icons.entity(e.type);
             switch(e.type) {
             case 'user':
-                if (name !== null) {
-                    msg = `${name} (${this.userLink(id)})`;
-                }
-                else {
-                    msg = this.userLink(id);
-                }
+                msg = this.userLink(id, name);
                 break;
             case 'group':
                 msg = this.groupLink(id, name);
@@ -42,7 +40,7 @@ define([
                 }
                 break;
             }
-            return `<span class="feed-entity">${msg}</span>`;
+            return `<span class="feed-entity">${icon} ${msg}</span>`;
         }
 
         narrativeLink(id, name) {
@@ -55,8 +53,8 @@ define([
             return `<a href="#orgs/${id}">${name}</a>`;
         }
 
-        userLink(userId) {
-            return `<a href="#people/${userId}">${userId}</a>`;
+        userLink(userId, name) {
+            return `<a href="#people/${userId}">${(name ? name : userId)}</a>`;
         }
 
         buildHtml() {

@@ -25,21 +25,21 @@ define([
                 if (target.length) {
                     if (target.length === 1) {
                         msg = actor + ' has requested to add ';
-                        if (target[0].type === 'workspace') {
-                            msg += ' the Narrative ';
-                        } else {
-                            msg += ' the Narrative ';
-                        }
-                        msg += this.entityHtml(target[0]) + ' to the group ';
+                        // if (target[0].type === 'workspace') {
+                        //     msg += ' the Workspace ';
+                        // } else {
+                        //     msg += ' the Narrative ';
+                        // }
+                        msg += this.entityHtml(target[0]) + ' to '; //the group ';
                     }
                 }
                 else {
-                    msg = actor + ' has requested to join the group ';
+                    msg = actor + ' has requested to join '; // the group ';
                 }
                 msg += this.entityHtml(this.note.object) + '.';
                 break;
             case 'invited':
-                msg = actor + ' has invited you to join the group ' + this.entityHtml(this.note.object) + '.';
+                msg = actor + ' has invited you to join ' + this.entityHtml(this.note.object) + '.';
                 break;
             case 'accepted':
                 if (target && target.length) {
@@ -50,7 +50,7 @@ define([
                     else {
                         msg += ' has ';
                     }
-                    msg += ' accepted the invitation to join ' + this.entityHtml(this.note.object) + '.';
+                    msg += ' been added to ' + this.entityHtml(this.note.object) + '.';
                 }
                 else {
                     msg = this.actorHtml() + ' accepted the invitation from ' + this.entityHtml(this.note.object);

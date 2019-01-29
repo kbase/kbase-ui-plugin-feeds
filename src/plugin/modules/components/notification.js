@@ -61,7 +61,7 @@ define([
                 body = div({class: 'feed-note-body'}, [this.renderBody()]),
                 link = div({class: 'feed-link'}, [this.renderLink()]),
                 control = div({class: 'feed-note-control'}, this.renderControl());
-            this.element.innerHTML = level + body + link + control;
+            this.element.innerHTML = level + control + link + body;
             this.bindEvents();
         }
 
