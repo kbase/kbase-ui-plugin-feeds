@@ -67,7 +67,7 @@ define([
 
         renderBody() {
             let text = div(this.renderMessage()),
-                infoStamp = small(this.renderCreated());
+                infoStamp = this.renderCreated();
             return text + infoStamp;
         }
 
@@ -160,8 +160,15 @@ define([
         }
 
         renderCreated() {
-            let date = new Date(this.note.created);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            let date = new Date(this.note.created),
+                timeAgo = Util.dateToAgo(date),
+                tooltip = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            return small({
+                class: 'feed-timestamp',
+                dataToggle: 'tooltip',
+                dataPlacement: 'right',
+                title: tooltip
+            }, [timeAgo]);
         }
 
         renderSource() {
