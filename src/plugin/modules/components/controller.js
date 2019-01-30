@@ -10,7 +10,6 @@ define([
     Util
 ) {
     'use strict';
-
     class FeedController {
         constructor(config) {
             let runtime = config.runtime;

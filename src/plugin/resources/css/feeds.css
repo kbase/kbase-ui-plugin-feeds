@@ -1,12 +1,38 @@
 .feeds-container {
+    display: flex;
+    flex-flow: column nowrap;
     padding: 0 15px;
+    position: relative;
     height: 100%;
+    align-items: stretch;
+    overflow: hidden;
 }
 
 .feeds-tabs-container {
     display: flex;
-    flex-direction: row;
-    height: 90%;
+    flex-flow: row nowrap;
+    flex: 2;
+    max-height: 90%;
+}
+
+.feed-tabs {
+    float: left;
+    border: 1px solid #ccc;
+    border-right: 0;
+    font-size: 12pt;
+    width: 25%;
+    background-color: rgb(214, 214, 214);
+    cursor: pointer;
+    overflow-y: auto;
+}
+
+.feed-content {
+    float: left;
+    border: 1px solid #ccc;
+    border-top: none;
+    width: 75%;
+    background-color: #fff;
+    overflow-y: auto;
 }
 
 .unseen-badge {
@@ -41,14 +67,15 @@
 }
 
 .feed-note-icon {
-    width: 10%;
+    width: 5%;
     text-align: center;
     vertical-align: middle;
 }
 
 .feed-note-body {
-    width: 80%;
+    width: 85%;
     font-size: 12pt;
+    padding-left: 5%;
 }
 
 .feed-link {
@@ -72,17 +99,6 @@
     visibility: visible;
 }
 
-.feed-tabs {
-    float: left;
-    border: 1px solid #ccc;
-    border-right: 0;
-    font-size: 12pt;
-    width: 25%;
-    height: 100%;
-    background-color: rgb(214, 214, 214);
-    cursor: pointer;
-}
-
 .feed-tab-btn {
     padding: 10px;
 }
@@ -98,16 +114,6 @@
 
 .feed-tab-btn.selected {
     cursor: default;
-}
-
-.feed-content {
-    float: left;
-    border: 1px solid #ccc;
-    border-top: none;
-    width: 75%;
-    background-color: #fff;
-    height: 100%;
-    flex: 1;
 }
 
 .feed-content .feed-note:last-child {
