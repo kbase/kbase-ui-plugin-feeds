@@ -6,8 +6,8 @@ define([
     'use strict';
 
     class GroupNotification extends BaseNotification {
-        constructor(note) {
-            super(note);
+        constructor(note, currentUserId) {
+            super(note, currentUserId);
         }
 
         /**

@@ -8,7 +8,8 @@ define([
     'use strict';
 
     class Base {
-        constructor(note) {
+        constructor(note, currentUserId) {
+            this.currentUserId = currentUserId;
             this.note = note;
         }
 
@@ -54,7 +55,11 @@ define([
         }
 
         userLink(userId, name) {
-            return `<a href="#people/${userId}">${(name ? name : userId)}</a>`;
+            let viewString = name ? name : userId;
+            if (userId === this.currentUserId) {
+                viewString += ' (you)';
+            }
+            return `<a href="#people/${userId}">${viewString}</a>`;
         }
 
         buildHtml() {

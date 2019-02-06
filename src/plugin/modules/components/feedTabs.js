@@ -23,6 +23,7 @@ define([
          *
          */
         constructor(config) {
+            this.userId = config.userId;
             this.isAdmin = config.isAdmin;
             this.runtime = config.runtime;
             this.feedUpdateFn = config.feedUpdateFn;
@@ -99,7 +100,7 @@ define([
                 contentPane.innerHTML = this.emptyNotification();
             }
             this.notes.forEach(note => {
-                let noteObj = new Notification(note, toggleSeenFn, expireNoteFn);
+                let noteObj = new Notification(note, this.userId, toggleSeenFn, expireNoteFn);
                 contentPane.appendChild(noteObj.element);
             });
         }
