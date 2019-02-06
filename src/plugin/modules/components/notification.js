@@ -4,14 +4,16 @@ define([
     'kb_common/html',
     '../util',
     '../notifications/base',
-    '../notifications/groups'
+    '../notifications/groups',
+    '../notifications/narrative'
 ], function(
     $,
     FeedsAPI,
     HTML,
     Util,
     DefaultNotification,
-    GroupsNotification
+    GroupsNotification,
+    NarrativeNotification
 ) {
     'use strict';
     let t = HTML.tag,
@@ -22,6 +24,7 @@ define([
         a = t('a');
 
     const GROUPS = 'groupsservice';
+    const NARRATIVE = 'narrativeservice';
 
     class Notification {
         /**
@@ -34,8 +37,9 @@ define([
          * - runtime - the runtime object
          * - expireNoteFn - if note null, then this notification can be expired by the user (which means gone forever)
          */
-        constructor(note, toggleSeenFn, expireNoteFn) {
+        constructor(note, userId, toggleSeenFn, expireNoteFn) {
             this.note = note;
+            this.userId = userId;
             this.noteObj = this.makeNoteObj();
             this.toggleSeenFn = toggleSeenFn;
             this.expireNoteFn = expireNoteFn;
@@ -50,9 +54,11 @@ define([
         makeNoteObj() {
             switch(this.note.source) {
             case GROUPS:
-                return new GroupsNotification(this.note);
+                return new GroupsNotification(this.note, this.userId);
+            case NARRATIVE:
+                return new NarrativeNotification(this.note, this.userId);
             default:
-                return new DefaultNotification(this.note);
+                return new DefaultNotification(this.note, this.userId);
             }
         }
 

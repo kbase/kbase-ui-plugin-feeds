@@ -14,6 +14,7 @@ define([
         constructor(config) {
             let runtime = config.runtime;
             this.token = runtime.service('session').getAuthToken();
+            this.userId = runtime.service('session').getUsername();
             this.notes = [];
             this.element = config.element;
             this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
@@ -67,7 +68,8 @@ define([
                         unseen: unseenSet,
                         globalFeed: feedData.global.feed,
                         runtime: runtime,
-                        isAdmin: this.isAdmin
+                        isAdmin: this.isAdmin,
+                        userId: this.userId
                     });
                     this.element.appendChild(this.feedTabs.element);
                 });

@@ -75,7 +75,7 @@
 .feed-note-body {
     width: 85%;
     font-size: 12pt;
-    padding-left: 5%;
+    padding-left: 1%;
 }
 
 .feed-link {
@@ -90,10 +90,6 @@
     font-size: 1.5em;
     visibility: hidden;
 }
-
-/* .feed-note:hover {
-    background-color: rgb(240, 239, 239);
-} */
 
 .feed-note:hover .feed-note-control {
     visibility: visible;
