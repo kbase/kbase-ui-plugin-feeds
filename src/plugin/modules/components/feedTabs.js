@@ -90,7 +90,6 @@ define([
         }
 
         renderFeed() {
-            console.log(this.notes);
             let contentPane = this.element.querySelector('.feed-content'),
                 curFeed = this.getCurrentFeedId(),
                 toggleSeenFn = curFeed !== 'global' ? this.toggleSeen.bind(this) : null,

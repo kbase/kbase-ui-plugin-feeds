@@ -102,7 +102,6 @@ define([
             // get filter info from controls
             // run the refresh function
             // update this feed with the results
-            console.log(this.ctrlState);
             this.refreshFn(this.ctrlState);
         }
 
