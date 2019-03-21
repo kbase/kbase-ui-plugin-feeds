@@ -150,7 +150,7 @@ define([
                     contextText = this.element.querySelector('#context-text').value,
                     contextLink = this.element.querySelector('#context-link').value,
                     expiration = this.getExpirationTimestamp(),
-                    feedsApi = FeedsAPI.make(
+                    feedsApi = new FeedsAPI(
                         this.runtime.getConfig('services.feeds.url'),
                         this.runtime.service('session').getAuthToken()
                     );

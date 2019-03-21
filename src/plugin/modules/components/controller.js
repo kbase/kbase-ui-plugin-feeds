@@ -17,7 +17,7 @@ define([
             this.userId = runtime.service('session').getUsername();
             this.notes = [];
             this.element = config.element;
-            this.feedsApi = FeedsAPI.make(runtime.getConfig('services.feeds.url'), this.token);
+            this.feedsApi = new FeedsAPI(runtime.getConfig('services.feeds.url'), this.token);
             let loader = Util.loadingElement('5x');
             this.feedData = {};
             this.isAdmin = false;
