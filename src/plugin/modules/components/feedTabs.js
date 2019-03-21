@@ -93,7 +93,10 @@ define([
             let contentPane = this.element.querySelector('.feed-content'),
                 curFeed = this.getCurrentFeedId(),
                 toggleSeenFn = curFeed !== 'global' ? this.toggleSeen.bind(this) : null,
-                expireNoteFn = curFeed === 'global' && this.isAdmin ? this.expireNote.bind(this) : null;
+                expireNoteFn = null;
+            if (curFeed === 'global' && this.isAdmin) {
+                this.expireNote.bind(this);
+            }
             contentPane.innerHTML = '';
             if (!this.notes || this.notes.length === 0) {
                 contentPane.innerHTML = this.emptyNotification();
