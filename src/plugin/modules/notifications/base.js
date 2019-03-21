@@ -13,6 +13,11 @@ define([
             this.note = note;
         }
 
+        /**
+         * This converts an Entity to an HTML string.
+         * @param {object} e - an Entity - has keys id, name, type, all strings. Type can be one
+         * of user, group, workspace, or narrative.
+         */
         entityHtml(e) {
             let id = Util.cleanText(e.id),
                 name = Util.cleanText(e.name),
@@ -63,23 +68,25 @@ define([
         }
 
         buildHtml() {
-            let actor = this.entityHtml(this.note.actor),
-                msg = actor + ' ' + this.note.verb,
-                objText = this.note.object.name ? this.note.object.name : this.note.object.id;
-            switch (this.note.verb) {
-            case 'invited':
-                msg += ' you to join the group ' + objText;
-                break;
-            case 'shared':
-                msg += ' with you.';
-                break;
-            case 'requested':
-                msg += ' to join the group ' + objText;
-                break;
-            default:
-                msg += ' ' + objText;
-            }
-            return msg;
+            return new Promise((resolve) => {
+                let actor = this.entityHtml(this.note.actor),
+                    msg = actor + ' ' + this.note.verb,
+                    objText = this.note.object.name ? this.note.object.name : this.note.object.id;
+                switch (this.note.verb) {
+                case 'invited':
+                    msg += ' you to join the group ' + objText;
+                    break;
+                case 'shared':
+                    msg += ' with you.';
+                    break;
+                case 'requested':
+                    msg += ' to join the group ' + objText;
+                    break;
+                default:
+                    msg += ' ' + objText;
+                }
+                resolve(msg);
+            });
         }
 
         getLink() {

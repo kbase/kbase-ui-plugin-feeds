@@ -19,15 +19,17 @@ define([
             let actor = this.entityHtml(this.note.actor),
                 msg = '';
 
-            switch(this.note.verb) {
-            case 'requested':
-                msg = actor + ' has requested ' + this.permissionLevel() + 'access to ';
-                msg += this.entityHtml(this.note.object) + '.';
-                break;
-            default:
-                msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
-            }
-            return msg;
+            return new Promise((resolve) => {
+                switch(this.note.verb) {
+                case 'requested':
+                    msg = actor + ' has requested ' + this.permissionLevel() + 'access to ';
+                    msg += this.entityHtml(this.note.object) + '.';
+                    break;
+                default:
+                    msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
+                }
+                resolve(msg);
+            });
         }
 
         permissionLevel() {

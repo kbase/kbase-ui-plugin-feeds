@@ -93,14 +93,19 @@ define([
             let contentPane = this.element.querySelector('.feed-content'),
                 curFeed = this.getCurrentFeedId(),
                 toggleSeenFn = curFeed !== 'global' ? this.toggleSeen.bind(this) : null,
-                expireNoteFn = curFeed === 'global' ? this.expireNote.bind(this) : null;
+                expireNoteFn = curFeed === 'global' && this.isAdmin ? this.expireNote.bind(this) : null;
             contentPane.innerHTML = '';
             if (!this.notes || this.notes.length === 0) {
                 contentPane.innerHTML = this.emptyNotification();
             }
             this.notes.forEach(note => {
-                let noteObj = new Notification(note, this.userId, toggleSeenFn, expireNoteFn);
-                contentPane.appendChild(noteObj.element);
+                let noteObj = new Notification(
+                    note, this.userId, toggleSeenFn, expireNoteFn, this.runtime
+                );
+                noteObj.render()
+                    .then((element) => {
+                        contentPane.appendChild(element);
+                    });
             });
         }
 
@@ -119,7 +124,7 @@ define([
 
         expireNote(note) {
             if (confirm('This will expire the notification for all users.\nIt will be removed from all feeds. Continue?')) {
-                let feedsApi = FeedsAPI.make(
+                let feedsApi = new FeedsAPI(
                     this.runtime.getConfig('services.feeds.url'),
                     this.runtime.service('session').getAuthToken()
                 );
@@ -136,7 +141,7 @@ define([
         }
 
         toggleSeen(note) {
-            let feedsApi = FeedsAPI.make(
+            let feedsApi = new FeedsAPI(
                 this.runtime.getConfig('services.feeds.url'),
                 this.runtime.service('session').getAuthToken()
             );
@@ -211,7 +216,7 @@ define([
         initSeenTimeout() {
             this.seenTimeout = setTimeout(() => {
                 let noteIds = this.notes.map(note => note.id),
-                    feedsApi = FeedsAPI.make(
+                    feedsApi = new FeedsAPI(
                         this.runtime.getConfig('services.feeds.url'),
                         this.runtime.service('session').getAuthToken()
                     );

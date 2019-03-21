@@ -1,6 +1,5 @@
 define([
     'jquery',
-    '../api/feeds',
     'kb_common/html',
     '../util',
     '../notifications/base',
@@ -8,7 +7,6 @@ define([
     '../notifications/narrative'
 ], function(
     $,
-    FeedsAPI,
     HTML,
     Util,
     DefaultNotification,
@@ -30,31 +28,25 @@ define([
         /**
          * @param {object} note
          * has keys: actor, context, created, expires, id, level, object, source, verb
-         * @param {object} config
-         * - token - the auth token
-         * - refreshFn - called when something gets marked seen/unseen
-         * - showSeen - boolean, if true, shows an icon of whether a notification has been seen
-         * - runtime - the runtime object
-         * - expireNoteFn - if note null, then this notification can be expired by the user (which means gone forever)
+         * @param {string} userId - The current user id
+         * @param {function} toggleSeenFn - the function to call when toggling a note seen/unseen
+         * @param {function} expireNoteFn - the function to call when expiring a notification
+         * @param {string} runtime - the current Runtime state object
          */
-        constructor(note, userId, toggleSeenFn, expireNoteFn) {
+        constructor(note, userId, toggleSeenFn, expireNoteFn, runtime) {
             this.note = note;
             this.userId = userId;
+            this.runtime = runtime;
             this.noteObj = this.makeNoteObj();
             this.toggleSeenFn = toggleSeenFn;
             this.expireNoteFn = expireNoteFn;
-            this.element = document.createElement('div');
-            this.element.classList.add('feed-note');
-            if (this.note.seen) {
-                this.element.classList.add('seen');
-            }
-            this.render();
+            this.element = null;
         }
 
         makeNoteObj() {
             switch(this.note.source) {
             case GROUPS:
-                return new GroupsNotification(this.note, this.userId);
+                return new GroupsNotification(this.note, this.userId, this.runtime);
             case NARRATIVE:
                 return new NarrativeNotification(this.note, this.userId);
             default:
@@ -63,18 +55,35 @@ define([
         }
 
         render() {
-            let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
-                body = div({class: 'feed-note-body'}, [this.renderBody()]),
-                link = div({class: 'feed-link'}, [this.renderLink()]),
-                control = div({class: 'feed-note-control'}, this.renderControl());
-            this.element.innerHTML = level + control + link + body;
-            this.bindEvents();
+            if (this.element !== null) {
+                return new Promise((resolve) => resolve(this.element));
+            }
+            else {
+                return this.renderBody()
+                    .then((bodyHtml) => {
+                        this.element = document.createElement('div');
+                        this.element.classList.add('feed-note');
+                        if (this.note.seen) {
+                            this.element.classList.add('seen');
+                        }
+                        let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
+                            body = div({class: 'feed-note-body'}, [bodyHtml]),
+                            link = div({class: 'feed-link'}, [this.renderLink()]),
+                            control = div({class: 'feed-note-control'}, this.renderControl());
+                        this.element.innerHTML = level + control + link + body;
+                        this.bindEvents();
+                        return this.element;
+                    });
+            }
         }
 
         renderBody() {
-            let text = div(this.renderMessage()),
-                infoStamp = this.renderCreated();
-            return text + infoStamp;
+            return this.renderMessage()
+                .then((message) => {
+                    let text = div(message),
+                        infoStamp = this.renderCreated();
+                    return text + infoStamp;
+                });
         }
 
         /**
@@ -183,7 +192,7 @@ define([
 
         renderMessage() {
             if (this.note.context && this.note.context.text) {
-                return Util.cleanText(this.note.context.text);
+                return new Promise((resolve) => resolve(Util.cleanText(this.note.context.text)));
             }
             else {
                 return this.noteObj.buildHtml();

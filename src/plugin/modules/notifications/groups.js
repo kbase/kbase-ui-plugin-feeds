@@ -1,13 +1,35 @@
 define([
-    './base'
+    './base',
+    '../api/groups'
 ], function (
-    BaseNotification
+    BaseNotification,
+    GroupsAPI
 ) {
     'use strict';
 
     class GroupNotification extends BaseNotification {
-        constructor(note, currentUserId) {
+        constructor(note, currentUserId, runtime) {
             super(note, currentUserId);
+            this.runtime = runtime;
+        }
+
+        updateParameters() {
+            if (this.note.verb === 'requested' && this.note.target.length === 1 &&
+                this.note.target[0].type === 'workspace' && !this.note.target[0].hasOwnProperty('name')) {
+                let groupsClient = new GroupsAPI(
+                    this.runtime.getConfig('services.groups.url'),
+                    this.runtime.service('session').getAuthToken()
+                );
+                return groupsClient.getResourceInfo(this.note.external_key)
+                    .then((info) => {
+                        this.note.target[0].name = info.narrname;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            } else {
+                return Promise.resolve();
+            }
         }
 
         /**
@@ -20,46 +42,46 @@ define([
                 msg = '',
                 target = this.note.target;
 
-            switch(this.note.verb) {
-            case 'requested':
-                if (target.length) {
-                    if (target.length === 1) {
-                        msg = actor + ' has requested to add ';
-                        // if (target[0].type === 'workspace') {
-                        //     msg += ' the Workspace ';
-                        // } else {
-                        //     msg += ' the Narrative ';
-                        // }
-                        msg += this.entityHtml(target[0]) + ' to '; //the group ';
+            return this.updateParameters()
+                .then(() => {
+                    switch(this.note.verb) {
+                    case 'requested':
+                        if (target.length && target.length === 1) {
+                            if (target[0].type === 'user' && target[0].id === this.note.actor.id) {
+                                msg = actor + ' has requested to join ';
+                            }
+                            else {
+                                msg = actor + ' has requested to add ' + this.entityHtml(target[0]) + ' to ';
+                            }
+                        }
+                        else {
+                            msg = actor + ' has requested to join ';
+                        }
+                        msg += this.entityHtml(this.note.object) + '.';
+                        break;
+                    case 'invited':
+                        msg = actor + ' has invited you to join ' + this.entityHtml(this.note.object) + '.';
+                        break;
+                    case 'accepted':
+                        if (target && target.length) {
+                            msg = target.map(t => this.entityHtml(t)).join(', ');
+                            if (target.length > 1) {
+                                msg += ' have ';
+                            }
+                            else {
+                                msg += ' has ';
+                            }
+                            msg += ' been added to ' + this.entityHtml(this.note.object) + '.';
+                        }
+                        else {
+                            msg = this.actorHtml() + ' accepted the invitation from ' + this.entityHtml(this.note.object);
+                        }
+                        break;
+                    default:
+                        msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
                     }
-                }
-                else {
-                    msg = actor + ' has requested to join '; // the group ';
-                }
-                msg += this.entityHtml(this.note.object) + '.';
-                break;
-            case 'invited':
-                msg = actor + ' has invited you to join ' + this.entityHtml(this.note.object) + '.';
-                break;
-            case 'accepted':
-                if (target && target.length) {
-                    msg = target.map(t => this.entityHtml(t)).join(', ');
-                    if (target.length > 1) {
-                        msg += ' have ';
-                    }
-                    else {
-                        msg += ' has ';
-                    }
-                    msg += ' been added to ' + this.entityHtml(this.note.object) + '.';
-                }
-                else {
-                    msg = this.actorHtml() + ' accepted the invitation from ' + this.entityHtml(this.note.object);
-                }
-                break;
-            default:
-                msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
-            }
-            return msg;
+                    return msg;
+                });
         }
 
         /**
