@@ -13,7 +13,14 @@ define([
             this.runtime = runtime;
         }
 
-        updateParameters() {
+        /**
+         * Updates note info with missing information. Currently checks if the note's target is missing
+         * the entity name (if it's a narrative and is missing the name, for instance), and makes a
+         * call to the groups service to get it.
+         *
+         * If that fails, just silently moves on as a no-op.
+         */
+        updateNoteInfo() {
             if (this.note.verb === 'requested' && this.note.target.length === 1 &&
                 this.note.target[0].type === 'workspace' && !this.note.target[0].hasOwnProperty('name')) {
                 let groupsClient = new GroupsAPI(
@@ -25,7 +32,7 @@ define([
                         this.note.target[0].name = info.narrname;
                     })
                     .catch((error) => {
-                        console.log(error);
+                        console.error(error);
                     });
             } else {
                 return Promise.resolve();
@@ -42,7 +49,7 @@ define([
                 msg = '',
                 target = this.note.target;
 
-            return this.updateParameters()
+            return this.updateNoteInfo()
                 .then(() => {
                     switch(this.note.verb) {
                     case 'requested':
