@@ -1,29 +1,31 @@
-## Config for kbase-ui-plugin-feeds
+## Plugin Configuration
 ---
 package:
-  author: Bill Riehl & Erik Pearson
-  name: feeds
-  description: Notifications and other data emitted by kbase services into a feed system which is accessed by users through this plugin
+    author: KBase Developer
+    name: feeds
+    description: The feeds panel and associated widgets
 source:
-  modules:
-  styles:
-    -
-      file: feeds
+    ## sources are relative to build/plugins/PACKAGE/source/javascript
+    ## NB: need to quote file names, otherwise
+    modules:
+    styles:
+        # - file: styles.css
 install:
-  widgets:
-    -
-      id: kb_feeds_panel
-      module: panel
-      type: factory
-  routes:
-    -
-      path: [feeds]
-      widget: kb_feeds_panel
-      authorization: true
-  menu:
-    -
-      name: feeds
-      definition:
-        path: feeds
-        label: Feeds
-        icon: bullhorn
+    widgets:
+        - module: ./panel
+          id: kb_plugin_feeds
+          type: es6
+    routes:
+        - path: ['feeds']
+          queryParams: {}
+          params: {
+              view: 'feeds'
+          }
+          widget: kb_plugin_feeds
+          authorization: true
+    menu:
+        - name: feeds
+          definition:
+              path: ['feeds']
+              label: Feeds
+              icon: bullhorn
