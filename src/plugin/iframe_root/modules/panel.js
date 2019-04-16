@@ -10,6 +10,7 @@ define(['./components/controller'], function (FeedController) {
             hostNode = node;
             container = hostNode.appendChild(document.createElement('div'));
             container.classList.add('feeds-container');
+            container.setAttribute('data-k-b-testhook-plugin', 'feeds');
         }
 
         function start() {
@@ -20,9 +21,7 @@ define(['./components/controller'], function (FeedController) {
             });
         }
 
-        function stop() {
-            container.innerHTML = 'stopping...';
-        }
+        function stop() {}
 
         function detach() {
             if (hostNode && container) {

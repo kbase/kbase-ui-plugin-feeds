@@ -9,21 +9,8 @@ source:
   styles:
     -
       file: feeds
-install:
-  widgets:
-    -
-      id: kb_feeds_panel
-      module: panel
-      type: factory
-  routes:
-    -
-      path: [feeds]
-      widget: kb_feeds_panel
-      authorization: true
-  menu:
-    -
-      name: feeds
-      definition:
-        path: feeds
-        label: Feeds
-        icon: bullhorn
+views:
+  -
+    module: panel
+    view: feeds
+    type: factory

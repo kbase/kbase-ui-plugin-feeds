@@ -1,15 +1,7 @@
 /**
  *
  */
-define([
-    './notification',
-    '../util',
-    '../api/feeds'
-], function (
-    Notification,
-    Util,
-    FeedsAPI
-) {
+define(['./notification', '../util', '../api/feeds'], function (Notification, Util, FeedsAPI) {
     'use strict';
     const SEEN_TIMEOUT = 10000;
 
@@ -27,7 +19,7 @@ define([
             this.isAdmin = config.isAdmin;
             this.runtime = config.runtime;
             this.feedUpdateFn = config.feedUpdateFn;
-            let feeds = config.feeds;
+            const feeds = config.feeds;
             this.feeds = {};
             this.order = [];
             this.element = document.createElement('div');
@@ -48,17 +40,17 @@ define([
             // select the first one and refresh it
             this.mainElem = document.createElement('div');
             this.element.appendChild(this.mainElem);
-            let structure = `
-                <div class="feed-tabs"></div>
+            const structure = `
+                <div class="feed-tabs" data-k-b-testhook-element="tabs"></div>
                 <div class="feed-content"></div>
             `;
             this.element.innerHTML = structure;
-            this.order.forEach(f => this.addFeed(f, this.feeds[f]));
+            this.order.forEach((f) => this.addFeed(f, this.feeds[f]));
             this.element.querySelector('.feed-tabs div:first-child').classList.add('feed-selected');
         }
 
         addFeed(feedKey, feedName) {
-            let tab = document.createElement('div');
+            const tab = document.createElement('div');
             tab.classList.add('feed-tab-btn');
             tab.innerHTML = `
                 <span>${Util.cleanText(feedName)}</span>
@@ -75,22 +67,16 @@ define([
             if (feedKey === this.getCurrentFeedId()) {
                 return;
             }
-            this.element
-                .querySelectorAll('.feed-tabs div')
-                .forEach(n => n.classList.remove('feed-selected'));
-            this.element
-                .querySelector(`.feed-tabs div[data-name="${feedKey}"]`)
-                .classList
-                .add('feed-selected');
-            let contentPane = this.element.querySelector('.feed-content');
+            this.element.querySelectorAll('.feed-tabs div').forEach((n) => n.classList.remove('feed-selected'));
+            this.element.querySelector(`.feed-tabs div[data-name="${feedKey}"]`).classList.add('feed-selected');
+            const contentPane = this.element.querySelector('.feed-content');
             contentPane.innerHTML = '';
             contentPane.appendChild(Util.loadingElement('3x'));
-            this.feedUpdateFn(feedKey)
-                .then(feed => this.refresh(feed));
+            this.feedUpdateFn(feedKey).then((feed) => this.refresh(feed));
         }
 
         renderFeed() {
-            let contentPane = this.element.querySelector('.feed-content'),
+            const contentPane = this.element.querySelector('.feed-content'),
                 curFeed = this.getCurrentFeedId(),
                 toggleSeenFn = curFeed !== 'global' ? this.toggleSeen.bind(this) : null,
                 expireNoteFn = null;
@@ -101,14 +87,11 @@ define([
             if (!this.notes || this.notes.length === 0) {
                 contentPane.innerHTML = this.emptyNotification();
             }
-            this.notes.forEach(note => {
-                let noteObj = new Notification(
-                    note, this.userId, toggleSeenFn, expireNoteFn, this.runtime
-                );
-                noteObj.render()
-                    .then((element) => {
-                        contentPane.appendChild(element);
-                    });
+            this.notes.forEach((note) => {
+                const noteObj = new Notification(note, this.userId, toggleSeenFn, expireNoteFn, this.runtime);
+                noteObj.render().then((element) => {
+                    contentPane.appendChild(element);
+                });
             });
         }
 
@@ -126,43 +109,51 @@ define([
         }
 
         expireNote(note) {
-            if (confirm('This will expire the notification for all users.\nIt will be removed from all feeds. Continue?')) {
-                let feedsApi = new FeedsAPI(
+            if (
+                confirm(
+                    'This will expire the notification for all users.\nIt will be removed from all feeds. Continue?'
+                )
+            ) {
+                const feedsApi = new FeedsAPI(
                     this.runtime.getConfig('services.feeds.url'),
                     this.runtime.service('session').getAuthToken()
                 );
-                feedsApi.expireGlobalNotification(note.id)
+                feedsApi
+                    .expireGlobalNotification(note.id)
                     .then(() => {
                         return this.feedUpdateFn(this.getCurrentFeedId());
                     })
-                    .then(feed => this.refresh(feed))
+                    .then((feed) => this.refresh(feed))
                     .catch((err) => {
-                        alert('Sorry, an error happened while trying to expire a notification.\nSee console for details.');
+                        alert(
+                            'Sorry, an error happened while trying to expire a notification.\nSee console for details.'
+                        );
                         console.error(err);
                     });
             }
         }
 
         toggleSeen(note) {
-            let feedsApi = new FeedsAPI(
+            const feedsApi = new FeedsAPI(
                 this.runtime.getConfig('services.feeds.url'),
                 this.runtime.service('session').getAuthToken()
             );
             let prom = null;
             if (note.seen) {
                 prom = feedsApi.markUnseen([note.id]);
-            }
-            else {
+            } else {
                 prom = feedsApi.markSeen([note.id]);
             }
             prom.then((res) => {
-                if ((res.unseen_notes && res.unseen_notes[0] === note.id) ||
-                    (res.seen_notes && res.seen_notes[0] === note.id)) {
-                    let noteElem = this.notes.find(n => n.id === note.id);
+                if (
+                    (res.unseen_notes && res.unseen_notes[0] === note.id) ||
+                    (res.seen_notes && res.seen_notes[0] === note.id)
+                ) {
+                    const noteElem = this.notes.find((n) => n.id === note.id);
                     noteElem.seen = !noteElem.seen;
-                    let unseenCount = this.notes.filter(n => !n.seen).length;
+                    const unseenCount = this.notes.filter((n) => !n.seen).length;
                     this.renderFeed();
-                    let counts = {};
+                    const counts = {};
                     counts[this.getCurrentFeedId()] = unseenCount;
                     this.setUnseenCounts(counts);
                 }
@@ -180,20 +171,19 @@ define([
          */
         setUnseenCounts(unseen) {
             for (const feedKey in unseen) {
-                let count = unseen[feedKey];
-                let badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
+                const count = unseen[feedKey];
+                const badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
                 if (count > 0) {
                     badge.innerHTML = unseen[feedKey];
                     badge.style.display = null;
-                }
-                else {
+                } else {
                     badge.style.display = 'none';
                 }
             }
         }
 
         refresh(feed) {
-            let curFeed = this.getCurrentFeedId();
+            const curFeed = this.getCurrentFeedId();
             if (!feed) {
                 return;
             }
@@ -204,8 +194,8 @@ define([
             }
             this.notes = feed.feed;
             this.renderFeed();
-            let unseenCount = this.notes.filter(n => !n.seen).length;
-            let unseen = {};
+            const unseenCount = this.notes.filter((n) => !n.seen).length;
+            const unseen = {};
             unseen[curFeed] = unseenCount;
             this.setUnseenCounts(unseen);
         }
@@ -218,16 +208,17 @@ define([
 
         initSeenTimeout() {
             this.seenTimeout = setTimeout(() => {
-                let noteIds = this.notes.map(note => note.id),
+                const noteIds = this.notes.map((note) => note.id),
                     feedsApi = new FeedsAPI(
                         this.runtime.getConfig('services.feeds.url'),
                         this.runtime.service('session').getAuthToken()
                     );
-                feedsApi.markSeen(noteIds)
+                feedsApi
+                    .markSeen(noteIds)
                     .then((seenResult) => {
-                        let idNotes = {};
-                        this.notes.forEach(n => idNotes[n.id] = n);
-                        seenResult.seen_notes.forEach(id => idNotes[id].seen = true);
+                        const idNotes = {};
+                        this.notes.forEach((n) => (idNotes[n.id] = n));
+                        seenResult.seen_notes.forEach((id) => (idNotes[id].seen = true));
                         this.renderFeed();
                     })
                     .catch((err) => {
