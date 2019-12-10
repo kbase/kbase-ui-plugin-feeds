@@ -51,41 +51,41 @@ define([
 
             return this.updateNoteInfo()
                 .then(() => {
-                    switch(this.note.verb) {
-                    case 'requested':
-                        if (target.length && target.length === 1) {
-                            if (target[0].type === 'user' && target[0].id === this.note.actor.id) {
+                    switch (this.note.verb) {
+                        case 'requested':
+                            if (target.length && target.length === 1) {
+                                if (target[0].type === 'user' && target[0].id === this.note.actor.id) {
+                                    msg = actor + ' has requested to join ';
+                                }
+                                else {
+                                    msg = actor + ' has requested to add ' + this.entityHtml(target[0]) + ' to ';
+                                }
+                            }
+                            else {
                                 msg = actor + ' has requested to join ';
                             }
-                            else {
-                                msg = actor + ' has requested to add ' + this.entityHtml(target[0]) + ' to ';
-                            }
-                        }
-                        else {
-                            msg = actor + ' has requested to join ';
-                        }
-                        msg += this.entityHtml(this.note.object) + '.';
-                        break;
-                    case 'invited':
-                        msg = actor + ' has invited you to join ' + this.entityHtml(this.note.object) + '.';
-                        break;
-                    case 'accepted':
-                        if (target && target.length) {
-                            msg = target.map(t => this.entityHtml(t)).join(', ');
-                            if (target.length > 1) {
-                                msg += ' have ';
+                            msg += this.entityHtml(this.note.object) + '.';
+                            break;
+                        case 'invited':
+                            msg = actor + ' has invited you to join ' + this.entityHtml(this.note.object) + '.';
+                            break;
+                        case 'accepted':
+                            if (target && target.length) {
+                                msg = target.map(t => this.entityHtml(t)).join(', ');
+                                if (target.length > 1) {
+                                    msg += ' have ';
+                                }
+                                else {
+                                    msg += ' has ';
+                                }
+                                msg += ' been added to ' + this.entityHtml(this.note.object) + '.';
                             }
                             else {
-                                msg += ' has ';
+                                msg = this.actorHtml() + ' accepted the invitation from ' + this.entityHtml(this.note.object);
                             }
-                            msg += ' been added to ' + this.entityHtml(this.note.object) + '.';
-                        }
-                        else {
-                            msg = this.actorHtml() + ' accepted the invitation from ' + this.entityHtml(this.note.object);
-                        }
-                        break;
-                    default:
-                        msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
+                            break;
+                        default:
+                            msg = actor + ' ' + this.note.verb + ' ' + this.entityHtml(this.note.object);
                     }
                     return msg;
                 });
@@ -97,12 +97,12 @@ define([
          * alert with no action required), returns null;
          */
         getLink() {
-            switch(this.note.verb) {
-            case 'requested':
-            case 'invited':
-                return '#orgs';
-            default:
-                return '';
+            switch (this.note.verb) {
+                case 'requested':
+                case 'invited':
+                    return '/#orgs';
+                default:
+                    return '';
             }
         }
     }

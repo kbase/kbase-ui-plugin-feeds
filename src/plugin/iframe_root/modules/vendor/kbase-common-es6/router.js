@@ -154,16 +154,14 @@ define([], () => {
 
                 // We can use a route which is longer than the path if the route has
                 // optional params at the end.
+
                 if (route.path.length > req.path.length) {
-                    if (
-                        !(
-                            req.path.slice(route.path.length).every((routePathElement) => {
-                                return routePathElement.optional;
-                            }) ||
-                            captureExtraPath ||
-                            route.path[route.path.length - 1].type === 'rest'
-                        )
-                    ) {
+                    const isAllOptional = route.path.slice(req.path.length).every((routePathElement) => {
+                        return routePathElement.optional;
+                    });
+                    const isCaptureExtraPath = captureExtraPath;
+                    const isRest = route.path[route.path.length - 1].type === 'rest';
+                    if (!(isAllOptional || isCaptureExtraPath || isRest)) {
                         continue routeloop;
                     }
                 } else if (route.path.length < req.path.length) {
@@ -175,7 +173,7 @@ define([], () => {
                     }
                 }
 
-                for (j = 0; j < req.path.length; j += 1) {
+                reqloop: for (j = 0; j < req.path.length; j += 1) {
                     routePathElement = route.path[j];
                     requestPathElement = req.path[j];
                     if (!routePathElement) {
@@ -228,8 +226,21 @@ define([], () => {
                         // unconditionally matches the rest of the request path, storing it
                         // as an array in a parameter named  by the 'name' property, or
                         // if this is missing or falsy, 'rest'.
-                        params[routePathElement.name || 'rest'] = req.path.slice(j);
-                        break;
+                        const name = routePathElement.name || 'rest';
+                        if (j < route.path.length - 1) {
+                            console.warn('rest parameter used before final route element');
+                            console.warn('  being treated as regular param');
+                            params[name] = requestPathElement;
+                            continue;
+                        }
+
+                        if (routePathElement.joinWith) {
+                            params[name] = req.path.slice(j).join(routePathElement.joinWith)
+                        } else {
+                            params[name] = req.path.slice(j);
+                        }
+                        
+                        break reqloop;
                     default:
                         // If the path element is not well formed (not a recognized type)
                         // just skip it with a warning.

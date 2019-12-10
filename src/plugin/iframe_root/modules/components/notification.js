@@ -5,7 +5,7 @@ define([
     '../notifications/base',
     '../notifications/groups',
     '../notifications/narrative'
-], function(
+], function (
     $,
     HTML,
     Util,
@@ -44,13 +44,13 @@ define([
         }
 
         makeNoteObj() {
-            switch(this.note.source) {
-            case GROUPS:
-                return new GroupsNotification(this.note, this.userId, this.runtime);
-            case NARRATIVE:
-                return new NarrativeNotification(this.note, this.userId);
-            default:
-                return new DefaultNotification(this.note, this.userId);
+            switch (this.note.source) {
+                case GROUPS:
+                    return new GroupsNotification(this.note, this.userId, this.runtime);
+                case NARRATIVE:
+                    return new NarrativeNotification(this.note, this.userId);
+                default:
+                    return new DefaultNotification(this.note, this.userId);
             }
         }
 
@@ -66,10 +66,10 @@ define([
                         if (this.note.seen) {
                             this.element.classList.add('seen');
                         }
-                        let level = div({class: 'feed-note-icon'}, [this.renderLevel()]),
-                            body = div({class: 'feed-note-body'}, [bodyHtml]),
-                            link = div({class: 'feed-link'}, [this.renderLink()]),
-                            control = div({class: 'feed-note-control'}, this.renderControl());
+                        let level = div({ class: 'feed-note-icon' }, [this.renderLevel()]),
+                            body = div({ class: 'feed-note-body' }, [bodyHtml]),
+                            link = div({ class: 'feed-link' }, [this.renderLink()]),
+                            control = div({ class: 'feed-note-control' }, this.renderControl());
                         this.element.innerHTML = level + control + link + body;
                         this.bindEvents();
                         return this.element;
@@ -127,7 +127,7 @@ define([
         }
 
         renderLink() {
-            let url = this.noteObj.getLink();
+            const url = this.noteObj.getLink();
             if (url) {
                 return a({
                     href: url,
@@ -141,23 +141,23 @@ define([
 
         renderLevel() {
             let icon = 'fa fa-info';
-            switch(this.note.level) {
-            case 'error':
-                icon = 'fa fa-ban';
-                this.element.classList.add('alert-danger');
-                break;
-            case 'request':
-                icon = 'fa fa-question-circle';
-                this.element.classList.add('alert-success');
-                break;
-            case 'warning':
-                icon = 'fa fa-exclamation-triangle';
-                this.element.classList.add('alert-warning');
-                break;
-            case 'alert':
-            default:
-                icon = 'fa fa-info';
-                this.element.classList.add('alert-info');
+            switch (this.note.level) {
+                case 'error':
+                    icon = 'fa fa-ban';
+                    this.element.classList.add('alert-danger');
+                    break;
+                case 'request':
+                    icon = 'fa fa-question-circle';
+                    this.element.classList.add('alert-success');
+                    break;
+                case 'warning':
+                    icon = 'fa fa-exclamation-triangle';
+                    this.element.classList.add('alert-warning');
+                    break;
+                case 'alert':
+                default:
+                    icon = 'fa fa-info';
+                    this.element.classList.add('alert-info');
             }
             return `<span style="font-size: 1.5em;"><i class="${icon}"></i></span>`;
         }
