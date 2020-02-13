@@ -51,7 +51,7 @@ define([
 
         narrativeLink(id, name) {
             name = name || id;
-            return `<a href="narrative/${id}" target="_parent">${name}</a>`;
+            return `<a href="/narrative/${id}" target="_parent">${name}</a>`;
         }
 
         groupLink(id, name) {
