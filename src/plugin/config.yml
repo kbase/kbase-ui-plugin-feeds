@@ -1,31 +1,22 @@
 ## Plugin Configuration
 ---
 package:
-    author: KBase Developer
-    name: feeds
-    description: The feeds panel and associated widgets
-source:
-    ## sources are relative to build/plugins/PACKAGE/source/javascript
-    ## NB: need to quote file names, otherwise
-    modules:
-    styles:
-        # - file: styles.css
+  name: feeds
+  description: The feeds panel and associated widgets
 install:
-    widgets:
-        - module: ./panel
-          id: kb_plugin_feeds
-          type: es6
-    routes:
-        - path: ['feeds']
-          queryParams: {}
-          params: {
-              view: 'feeds'
-          }
-          widget: kb_plugin_feeds
-          authorization: true
-    menu:
-        - name: feeds
-          definition:
-              path: ['feeds']
-              label: Feeds
-              icon: bullhorn
+  # widgets:
+  #     - module: ./panel
+  #       component: pluginSupport/Plugin
+  #       type: es6
+  routes:
+    - path: ["feeds"]
+      queryParams: {}
+      params: {view: "feeds"}
+      component: /pluginSupport/Plugin
+      authorization: true
+  menu:
+    - name: feeds
+      definition:
+        path: ["feeds"]
+        label: Feeds
+        icon: bullhorn

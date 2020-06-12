@@ -4,50 +4,40 @@ require(['loader'], function () {
         'bluebird',
         'kbaseUI/integration',
         'kbaseUI/dispatcher',
-        'kb_knockout/load',
-        'yaml!./config.yml',
         'kb_lib/props',
-
+        'yaml!./config.yml',
         'bootstrap',
         'css!font_awesome'
-    ], (Promise, Integration, Dispatcher, knockoutLoader, pluginConfig, props) => {
+    ], (Promise, Integration, Dispatcher, props, pluginConfig) => {
+        const pluginConfigDB = new props.Props({ data: pluginConfig });
         Promise.try(() => {
-            const config = new props.Props({ data: pluginConfig });
             const integration = new Integration({
-                rootWindow: window
+                rootWindow: window,
+                pluginConfigDB
             });
-
             const rootNode = document.getElementById('root');
 
             // NOW -- we need to implement widget dispatch here
             // based on the navigation received from the parent context.
             let dispatcher = null;
 
-            return knockoutLoader
-                .load()
-                .then((ko) => {
-                    // For more efficient ui updates.
-                    // This was introduced in more recent knockout releases,
-                    // and in the past introduced problems which were resolved
-                    // in knockout 3.5.0.
-                    ko.options.deferUpdates = true;
-                })
-                .then(() => {
-                    return integration.start();
-                })
+            return integration.start()
                 .then(() => {
                     // // This installs all widgets from the config file.
-                    const widgets = config.getItem('install.widgets', []);
+                    const widgets = pluginConfigDB.getItem('install.widgets', []);
                     widgets.forEach((widgetDef) => {
-                        integration.runtime.widgetManager.addWidget(widgetDef);
+                        integration.runtime
+                            .service('widget')
+                            .getWidgetManager()
+                            .addWidget(widgetDef);
                     });
                 })
                 .then(() => {
-                    // console.log('views/??', pluginConfig, config.getItem('views', 'whaaaat?'));
+                    // Add routes to panels here
                     dispatcher = new Dispatcher({
                         runtime: integration.runtime,
                         node: rootNode,
-                        views: config.getItem('views')
+                        views: pluginConfigDB.getItem('views', [])
                     });
                     return dispatcher.start();
                 })
@@ -60,13 +50,17 @@ require(['loader'], function () {
                         } else {
                             view = path[0];
                         }
-                        dispatcher.dispatch({ view, path, params });
+                        dispatcher.dispatch({ view, path, params })
+                            .catch((ex) => {
+                                // TODO: this should trigger an error display
+                                console.error('Dispatch Error', ex.message);
+                            });
                     });
                     integration.started();
                     // TODO: more channel listeners.
                 });
         }).catch((err) => {
-            console.error('ERROR', err);
+            console.error('ERROR2', err);
         });
     });
 });
