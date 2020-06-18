@@ -1,15 +1,28 @@
 {
-    "description": "Build tool for this plugin",
+    "name": "kbase-ui-plugin-dataview",
+    "version": "0.1.0",
+    "description": "This repo contains the dataview plugin",
+    "main": "index.js",
     "scripts": {
         "clean": "grunt clean",
         "install-bower": "bower-installer",
         "install-npm": "grunt copy",
         "remove-source-maps": "node scripts/remove-source-maps.js",
-        "install-dist": "node scripts/install-dist.js"
+        "install-dist": "node scripts/install-dist.js",
+        "install-dev": "node scripts/install-dev.js",
+        "build": "bash scripts/build.sh",
+        "update": "node scripts/install-dev.js"
     },
-    "author": "KBase Developers",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/kbase/kbase-ui-plugin-auth2-client.git"
+    },
+    "author": "",
     "license": "SEE LICENSE IN LICENSE",
-    "dependencies": {},
+    "bugs": {
+        "url": "https://github.com/kbase/kbase-ui-plugin-auth2-client/issues"
+    },
+    "homepage": "https://github.com/kbase/kbase-ui-plugin-auth2-client#readme",
     "devDependencies": {
         "bluebird": "3.7.2",
         "bower-installer": "1.3.6",
