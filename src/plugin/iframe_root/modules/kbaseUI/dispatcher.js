@@ -63,7 +63,7 @@ define(['require'], (require) => {
         dispatch({ view: viewId, path, params }) {
             const view = this.selectView(viewId);
             if (!view || !view.module) {
-                console.warn('bad view request', viewId, path, params);
+                console.warn('bad view request', viewId, path, params, this.viewMap);
                 alert('oops, bad view request: ' + view);
                 return;
             }
