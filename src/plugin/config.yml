@@ -4,15 +4,9 @@ package:
   name: feeds
   description: The feeds panel and associated widgets
 install:
-  # widgets:
-  #     - module: ./panel
-  #       component: pluginSupport/Plugin
-  #       type: es6
   routes:
-    - path: ["feeds"]
-      queryParams: {}
-      params: {view: "feeds"}
-      component: /pluginSupport/Plugin
+    - path: feeds
+      view: feeds
       authorization: true
   menu:
     - name: feeds
