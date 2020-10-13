@@ -3,14 +3,15 @@
 package:
   name: feeds
   description: The feeds panel and associated widgets
-install:
-  routes:
-    - path: feeds
-      view: feeds
-      authorization: true
+services:
+  route:
+    routes:
+      - path: "{{plugin}}"
+        view: feeds
+        authorization: true
   menu:
-    - name: feeds
-      definition:
-        path: ["feeds"]
+    items:
+      - name: feeds
+        path: "{{plugin}}"
         label: Feeds
         icon: bullhorn
