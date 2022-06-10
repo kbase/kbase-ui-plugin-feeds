@@ -19,32 +19,32 @@ define([
          * of user, group, workspace, or narrative.
          */
         entityHtml(e) {
-            let id = Util.cleanText(e.id),
-                name = Util.cleanText(e.name),
-                msg = '',
-                icon = Icons.entity(e.type);
+            const id = Util.cleanText(e.id);
+            const name = Util.cleanText(e.name);
+            const icon = Icons.entity(e.type);
+            let msg = '';
             switch (e.type) {
-                case 'user':
-                    msg = this.userLink(id, name);
-                    break;
-                case 'group':
-                    msg = this.groupLink(id, name);
-                    break;
-                case 'workspace':
-                case 'narrative':
-                    msg = this.narrativeLink(id, name);
-                    if (!name) {
-                        msg += ' (name not accessible)';
-                    }
-                    break;
-                default:
-                    if (name !== null) {
-                        msg = `${name} (${id})`;
-                    }
-                    else {
-                        msg = id;
-                    }
-                    break;
+            case 'user':
+                msg = this.userLink(id, name);
+                break;
+            case 'group':
+                msg = this.groupLink(id, name);
+                break;
+            case 'workspace':
+            case 'narrative':
+                msg = this.narrativeLink(id, name);
+                if (!name) {
+                    msg += ' (name not accessible)';
+                }
+                break;
+            default:
+                if (name !== null) {
+                    msg = `${name} (${id})`;
+                }
+                else {
+                    msg = id;
+                }
+                break;
             }
             return `<span class="feed-entity">${icon} ${msg}</span>`;
         }
@@ -69,21 +69,21 @@ define([
 
         buildHtml() {
             return new Promise((resolve) => {
-                let actor = this.entityHtml(this.note.actor),
-                    msg = actor + ' ' + this.note.verb,
-                    objText = this.note.object.name ? this.note.object.name : this.note.object.id;
+                const actor = this.entityHtml(this.note.actor);
+                const objText = this.note.object.name ? this.note.object.name : this.note.object.id;
+                let msg = actor + ' ' + this.note.verb;
                 switch (this.note.verb) {
-                    case 'invited':
-                        msg += ' you to join the group ' + objText;
-                        break;
-                    case 'shared':
-                        msg += ' with you.';
-                        break;
-                    case 'requested':
-                        msg += ' to join the group ' + objText;
-                        break;
-                    default:
-                        msg += ' ' + objText;
+                case 'invited':
+                    msg += ' you to join the group ' + objText;
+                    break;
+                case 'shared':
+                    msg += ' with you.';
+                    break;
+                case 'requested':
+                    msg += ' to join the group ' + objText;
+                    break;
+                default:
+                    msg += ' ' + objText;
                 }
                 resolve(msg);
             });

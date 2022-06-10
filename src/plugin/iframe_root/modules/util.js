@@ -17,7 +17,7 @@ define(function () {
         if (!['1x', '2x', '3x', '4x', '5x'].includes(size)) {
             size = defaultSize;
         }
-        let elem = document.createElement('i');
+        const elem = document.createElement('i');
         elem.classList.add('fa', 'fa-spinner', 'fa-pulse', 'fa-' + size, 'fa-fw');
         return elem;
     }
@@ -42,16 +42,16 @@ define(function () {
     }];
 
     function dateToAgo(date) {
-        let now = new Date(),
-            diffMs = Math.abs(now - date),
-            diff;
+        const now = new Date();
+        const diffMs = Math.abs(now - date);
+        let diff;
         if (now < date) {
             return 'just now';
         }
         for (let i=0; i<dateFilter.length; i++) {
             diff = Math.floor(diffMs / dateFilter[i].div);
             if (diff > 0) {
-                let s = (diff > 1) ? 's' : '';
+                const s = (diff > 1) ? 's' : '';
                 return diff + dateFilter[i].interval + s + ' ago';
             }
         }
@@ -59,8 +59,8 @@ define(function () {
     }
 
     return {
-        cleanText: cleanText,
-        loadingElement: loadingElement,
-        dateToAgo: dateToAgo
+        cleanText,
+        loadingElement,
+        dateToAgo
     };
 });

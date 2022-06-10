@@ -1,43 +1,27 @@
 define([
     '../api/feeds'
-], function(FeedsAPI) {
+], (FeedsAPI) => {
     'use strict';
-
     class GlobalFeedPoster {
         /**
-         *
-         * @param {object} config
-         * - afterSubmitFn - what happens after a notification is submitted
-         * - runtime - the runtime object
-         *
-         */
+             *
+             * @param {object} config
+             * - afterSubmitFn - what happens after a notification is submitted
+             * - runtime - the runtime object
+             *
+             */
         constructor(config) {
             this.runtime = config.runtime;
             this.element = document.createElement('div');
             this.element.classList.add('panel', 'panel-primary');
-            const verbs = ['invite', 'accept', 'reject', 'share', 'unshare', 'join', 'leave', 'request', 'update'];
             const levels = ['alert', 'warning', 'error', 'request'];
             this.afterSubmitFn = function () {
                 config.afterSubmitFn({});
             };
 
-            let curDate = new Date(),
-                defaultExp = new Date(curDate.getTime() + (30 * 24 * 60 * 60 * 1000));
+            const curDate = new Date(), defaultExp = new Date(curDate.getTime() + (30 * 24 * 60 * 60 * 1000));
 
-            let OLD = `
-                <div class='form-group mx-sm-3 mb-2'>
-                    <label for="verb-select"><b>Verb</b> - this tells the notification what's happening.</label>
-                    <select class="form-control custom-select" id="verb-select">
-                        ${verbs.map(verb => `<option value="${verb}">${verb}</option>`)}
-                    </select>
-                </div>
-                <div class='form-group mx-sm-3 mb-2'>
-                    <label for="object-input"><b>Object</b> - this field sets the notification to what the event is affecting.</label>
-                    <input class="form-control" id="object-input" placeholder="Enter object" />
-                    <small class="form-text text-muted"></small>
-                </div>
-            `;
-
+            // xss safe
             this.element.innerHTML = `
                 <div class='panel-heading'>
                     <b>Create Global Notification</b> - create a new global notification. Everyone gets to see this.
@@ -84,12 +68,12 @@ define([
         }
 
         generateMonths(date) {
-            let curMonth = date.getMonth();
-            let months = [
+            const curMonth = date.getMonth();
+            const months = [
                 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
                 'September', 'October', 'November', 'December'
             ].map((m, i) => {
-                let selected = i === curMonth ? ' selected' : '';
+                const selected = i === curMonth ? ' selected' : '';
                 return '<option value=' + i + selected + '>' + m + '</option>';
             });
             return months;
@@ -100,14 +84,14 @@ define([
         }
 
         getExpirationTimestamp() {
-            let curDate = new Date();
-            let year = parseInt(this.element.querySelector('#exp-year').value),
-                month = parseInt(this.element.querySelector('#exp-mon').value),
-                day = parseInt(this.element.querySelector('#exp-day').value),
-                hour = parseInt(this.element.querySelector('#exp-hour').value),
-                min = parseInt(this.element.querySelector('#exp-min').value),
-                sec = curDate.getSeconds(),
-                fail = false;
+            const curDate = new Date();
+            const year = parseInt(this.element.querySelector('#exp-year').value);
+            const month = parseInt(this.element.querySelector('#exp-mon').value);
+            const day = parseInt(this.element.querySelector('#exp-day').value);
+            const hour = parseInt(this.element.querySelector('#exp-hour').value);
+            const min = parseInt(this.element.querySelector('#exp-min').value);
+            const sec = curDate.getSeconds();
+            let fail = false;
 
             // error trapping here
             if (isNaN(year) || year < curDate.getFullYear()) {
@@ -131,9 +115,9 @@ define([
                 fail = true;
             }
 
-            let expDate = new Date(year, month, day, hour, min, sec);
+            const expDate = new Date(year, month, day, hour, min, sec);
             if (expDate <= curDate) {
-                alert("Don't expire the notification before it's made, please.");
+                alert('Don\'t expire the notification before it\'s made, please.');
                 fail = true;
             }
             if (fail) {
@@ -144,13 +128,9 @@ define([
 
         bindEvents() {
             this.element.querySelector('#postGlobal').onclick = () => {
-                let verb = 'update', //this.element.querySelector('#verb-select').value,
+                const verb = 'update', //this.element.querySelector('#verb-select').value,
                     object = 'none', //this.element.querySelector('#object-input').value,
-                    level = this.element.querySelector('#level-select').value,
-                    contextText = this.element.querySelector('#context-text').value,
-                    contextLink = this.element.querySelector('#context-link').value,
-                    expiration = this.getExpirationTimestamp(),
-                    feedsApi = new FeedsAPI(
+                    level = this.element.querySelector('#level-select').value, contextText = this.element.querySelector('#context-text').value, contextLink = this.element.querySelector('#context-link').value, expiration = this.getExpirationTimestamp(), feedsApi = new FeedsAPI(
                         this.runtime.getConfig('services.feeds.url'),
                         this.runtime.service('session').getAuthToken()
                     );
@@ -178,7 +158,7 @@ define([
                     });
             };
             this.element.querySelector('.panel-heading .btn').onclick = () => {
-                let btnIcon = this.element.querySelector('.panel-heading .btn i.fa');
+                const btnIcon = this.element.querySelector('.panel-heading .btn i.fa');
                 if (btnIcon.classList.contains('fa-toggle-off')) {
                     btnIcon.classList.replace('fa-toggle-off', 'fa-toggle-on');
                 }

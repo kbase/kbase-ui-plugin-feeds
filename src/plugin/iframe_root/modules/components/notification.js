@@ -5,34 +5,27 @@ define([
     '../notifications/base',
     '../notifications/groups',
     '../notifications/narrative'
-], function (
-    $,
+], ($,
     HTML,
     Util,
     DefaultNotification,
     GroupsNotification,
-    NarrativeNotification
-) {
+    NarrativeNotification) => {
     'use strict';
-    let t = HTML.tag,
-        div = t('div'),
-        span = t('span'),
-        small = t('small'),
-        i = t('i'),
-        a = t('a');
+    const t = HTML.tag, div = t('div'), span = t('span'), small = t('small'), i = t('i'), a = t('a');
 
     const GROUPS = 'groupsservice';
     const NARRATIVE = 'narrativeservice';
 
     class Notification {
         /**
-         * @param {object} note
-         * has keys: actor, context, created, expires, id, level, object, source, verb
-         * @param {string} userId - The current user id
-         * @param {function} toggleSeenFn - the function to call when toggling a note seen/unseen
-         * @param {function} expireNoteFn - the function to call when expiring a notification
-         * @param {string} runtime - the current Runtime state object
-         */
+             * @param {object} note
+             * has keys: actor, context, created, expires, id, level, object, source, verb
+             * @param {string} userId - The current user id
+             * @param {function} toggleSeenFn - the function to call when toggling a note seen/unseen
+             * @param {function} expireNoteFn - the function to call when expiring a notification
+             * @param {string} runtime - the current Runtime state object
+             */
         constructor(note, userId, toggleSeenFn, expireNoteFn, runtime) {
             this.note = note;
             this.userId = userId;
@@ -45,12 +38,12 @@ define([
 
         makeNoteObj() {
             switch (this.note.source) {
-                case GROUPS:
-                    return new GroupsNotification(this.note, this.userId, this.runtime);
-                case NARRATIVE:
-                    return new NarrativeNotification(this.note, this.userId);
-                default:
-                    return new DefaultNotification(this.note, this.userId);
+            case GROUPS:
+                return new GroupsNotification(this.note, this.userId, this.runtime);
+            case NARRATIVE:
+                return new NarrativeNotification(this.note, this.userId);
+            default:
+                return new DefaultNotification(this.note, this.userId);
             }
         }
 
@@ -66,10 +59,8 @@ define([
                         if (this.note.seen) {
                             this.element.classList.add('seen');
                         }
-                        let level = div({ class: 'feed-note-icon' }, [this.renderLevel()]),
-                            body = div({ class: 'feed-note-body' }, [bodyHtml]),
-                            link = div({ class: 'feed-link' }, [this.renderLink()]),
-                            control = div({ class: 'feed-note-control' }, this.renderControl());
+                        const level = div({ class: 'feed-note-icon' }, [this.renderLevel()]), body = div({ class: 'feed-note-body' }, [bodyHtml]), link = div({ class: 'feed-link' }, [this.renderLink()]), control = div({ class: 'feed-note-control' }, this.renderControl());
+                        // xss safe (traced all usages)
                         this.element.innerHTML = level + control + link + body;
                         this.bindEvents();
                         return this.element;
@@ -80,19 +71,18 @@ define([
         renderBody() {
             return this.renderMessage()
                 .then((message) => {
-                    let text = div(message),
-                        infoStamp = this.renderCreated();
+                    const text = div(message), infoStamp = this.renderCreated();
                     return text + infoStamp;
                 });
         }
 
         /**
-         * Renders controls for dismissing/marking a notification seen.
-         */
+             * Renders controls for dismissing/marking a notification seen.
+             */
         renderControl() {
             let seenBtn = '';
-            let icon = this.note.seen ? 'eye-slash' : 'eye';
-            let text = this.note.seen ? 'unseen' : 'seen';
+            const icon = this.note.seen ? 'eye-slash' : 'eye';
+            const text = this.note.seen ? 'unseen' : 'seen';
             if (this.toggleSeenFn) {
                 seenBtn = span(
                     {
@@ -142,22 +132,22 @@ define([
         renderLevel() {
             let icon = 'fa fa-info';
             switch (this.note.level) {
-                case 'error':
-                    icon = 'fa fa-ban';
-                    this.element.classList.add('alert-danger');
-                    break;
-                case 'request':
-                    icon = 'fa fa-question-circle';
-                    this.element.classList.add('alert-success');
-                    break;
-                case 'warning':
-                    icon = 'fa fa-exclamation-triangle';
-                    this.element.classList.add('alert-warning');
-                    break;
-                case 'alert':
-                default:
-                    icon = 'fa fa-info';
-                    this.element.classList.add('alert-info');
+            case 'error':
+                icon = 'fa fa-ban';
+                this.element.classList.add('alert-danger');
+                break;
+            case 'request':
+                icon = 'fa fa-question-circle';
+                this.element.classList.add('alert-success');
+                break;
+            case 'warning':
+                icon = 'fa fa-exclamation-triangle';
+                this.element.classList.add('alert-warning');
+                break;
+            case 'alert':
+            default:
+                icon = 'fa fa-info';
+                this.element.classList.add('alert-info');
             }
             return `<span style="font-size: 1.5em;"><i class="${icon}"></i></span>`;
         }
@@ -175,9 +165,7 @@ define([
         }
 
         renderCreated() {
-            let date = new Date(this.note.created),
-                timeAgo = Util.dateToAgo(date),
-                tooltip = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+            const date = new Date(this.note.created), timeAgo = Util.dateToAgo(date), tooltip = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
             return small({
                 class: 'feed-timestamp',
                 dataToggle: 'tooltip',
@@ -201,11 +189,11 @@ define([
 
         bindEvents() {
             $(this.element).find('[data-toggle="tooltip"]').tooltip();
-            let seenBtn = this.element.querySelector('.feed-note-control span.feed-seen');
+            const seenBtn = this.element.querySelector('.feed-note-control span.feed-seen');
             if (seenBtn) {
                 seenBtn.onclick = () => this.toggleSeenFn(this.note);
             }
-            let expireBtn = this.element.querySelector('.feed-note-control span.feed-expire');
+            const expireBtn = this.element.querySelector('.feed-note-control span.feed-expire');
             if (expireBtn) {
                 expireBtn.onclick = () => this.expireNoteFn(this.note);
             }

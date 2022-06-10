@@ -44,6 +44,7 @@ define(['./notification', '../util', '../api/feeds'], function (Notification, Ut
                 <div class="feed-tabs" data-k-b-testhook-element="tabs"></div>
                 <div class="feed-content"></div>
             `;
+            // xss safe
             this.element.innerHTML = structure;
             this.order.forEach((f) => this.addFeed(f, this.feeds[f]));
             this.element.querySelector('.feed-tabs div:first-child').classList.add('feed-selected');
@@ -52,6 +53,7 @@ define(['./notification', '../util', '../api/feeds'], function (Notification, Ut
         addFeed(feedKey, feedName) {
             const tab = document.createElement('div');
             tab.classList.add('feed-tab-btn');
+            // xss safe
             tab.innerHTML = `
                 <span>${Util.cleanText(feedName)}</span>
                 <span class="badge unseen-badge pull-right" style="display: none"><span>
@@ -85,6 +87,7 @@ define(['./notification', '../util', '../api/feeds'], function (Notification, Ut
             }
             contentPane.innerHTML = '';
             if (!this.notes || this.notes.length === 0) {
+                // xss safe
                 contentPane.innerHTML = this.emptyNotification();
             }
             this.notes.forEach((note) => {
@@ -174,6 +177,7 @@ define(['./notification', '../util', '../api/feeds'], function (Notification, Ut
                 const count = unseen[feedKey];
                 const badge = this.element.querySelector(`.feed-tabs div[data-name=${feedKey}] span.badge`);
                 if (count > 0) {
+                    // xss safe
                     badge.innerHTML = unseen[feedKey];
                     badge.style.display = null;
                 } else {
