@@ -23,16 +23,6 @@ require(['loader'], function () {
 
             return integration.start()
                 .then(() => {
-                    // // This installs all widgets from the config file.
-                    const widgets = pluginConfigDB.getItem('install.widgets', []);
-                    widgets.forEach((widgetDef) => {
-                        integration.runtime
-                            .service('widget')
-                            .getWidgetManager()
-                            .addWidget(widgetDef);
-                    });
-                })
-                .then(() => {
                     // Add routes to panels here
                     dispatcher = new Dispatcher({
                         runtime: integration.runtime,

@@ -1,20 +1,19 @@
 define([
-    './notification'
-], function(
-    Notification
-) {
+    './notification',
+    '../util'
+], (Notification,
+    Utils) => {
     'use strict';
-
     class Feed {
         /**
-         *
-         * @param {object} config
-         * - runtime - the runtime object
-         * - refreshFn - gets invoked when the feed wants to be refreshed
-         * - feedName - the feed name, shown in the header
-         * - showControls - boolean, if true, shows controls.
-         * - showSeen - boolean, if true, gives the option to dismiss (mark as seen) notifications
-         */
+             *
+             * @param {object} config
+             * - runtime - the runtime object
+             * - refreshFn - gets invoked when the feed wants to be refreshed
+             * - feedName - the feed name, shown in the header
+             * - showControls - boolean, if true, shows controls.
+             * - showSeen - boolean, if true, gives the option to dismiss (mark as seen) notifications
+             */
         constructor(config) {
             this.runtime = config.runtime;
             this.refreshFn = config.refreshFn;
@@ -24,10 +23,11 @@ define([
 
             this.element = document.createElement('div');
             this.element.classList.add('panel', 'panel-default');
+            // xss safe
             this.element.innerHTML = `
                 <div class="panel-heading">
                     <span class="panel-title">
-                        <span id="user-feed-name">${this.userName}</span> notifications
+                        <span id="user-feed-name">${Utils.cleanText(this.userName)}</span> notifications
                     </span>
                     ${this.showControls ? this.renderFilters() : ''}
                 </div>
@@ -46,10 +46,10 @@ define([
         }
 
         bindEvents() {
-            let ctrls = this.element.querySelector('.panel-heading div#feed-inputs');
+            const ctrls = this.element.querySelector('.panel-heading div#feed-inputs');
             // toggle eye
             ctrls.querySelector('#seen-btn').onclick = () => {
-                let btnIcon = ctrls.querySelector('#seen-btn .fa');
+                const btnIcon = ctrls.querySelector('#seen-btn .fa');
                 if (btnIcon.classList.contains('fa-eye-slash')) {
                     btnIcon.classList.replace('fa-eye-slash', 'fa-eye');
                     this.ctrlState.includeSeen = true;
@@ -63,7 +63,7 @@ define([
 
             // toggle order
             ctrls.querySelector('#sort-btn').onclick = () => {
-                let btnIcon = ctrls.querySelector('#sort-btn .fa');
+                const btnIcon = ctrls.querySelector('#sort-btn .fa');
                 if (btnIcon.classList.contains('fa-sort-numeric-desc')) {
                     btnIcon.classList.replace('fa-sort-numeric-desc', 'fa-sort-numeric-asc');
                     this.ctrlState.reverseSort = false;
@@ -106,9 +106,7 @@ define([
         }
 
         renderFilters() {
-            let levels = ['alert', 'warning', 'error', 'request'],
-                services = ['groups', 'workspace', 'jobs', 'narrative'],
-                filterHtml = `
+            const levels = ['alert', 'warning', 'error', 'request'], services = ['groups', 'workspace', 'jobs', 'narrative'], filterHtml = `
                     <div id="feed-inputs" class="form-inline pull-right" style="margin-top: -6px">
                         <button class="btn btn-md btn-default" type="button" id="seen-btn">
                             <i class="fa fa-eye-slash"></i>
@@ -136,9 +134,9 @@ define([
 
         updateFeed(feed, token) {
             this.remove();
-            let userFeed = this.element.querySelector('.panel-body');
+            const userFeed = this.element.querySelector('.panel-body');
             feed.feed.forEach(note => {
-                let noteObj = new Notification(note, {
+                const noteObj = new Notification(note, {
                     runtime: this.runtime,
                     token: token,
                     refreshFn: this.refresh.bind(this),
@@ -150,7 +148,8 @@ define([
 
         setUserName(userName) {
             this.userName = userName;
-            this.element.querySelector('#user-feed-name').innerHTML = userName;
+            // xss safe
+            this.element.querySelector('#user-feed-name').innerHTML = Utils.cleanText(userName);
         }
     }
     return Feed;

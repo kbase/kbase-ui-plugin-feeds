@@ -123,6 +123,7 @@ define(['../api/feeds', './globalPoster', './feedTabs', '../util'], function (Fe
 
         renderError(err) {
             console.error(err);
+            // xss safe
             this.element.innerHTML = `
                 <div class="alert alert-danger">
                     An error occurred while fetching your feed!
